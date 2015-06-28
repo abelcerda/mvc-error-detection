@@ -1,0 +1,28 @@
+#$:.unshift File.dirname(__FILE__) + "/../lib"
+
+require "parslet"
+#require "pp"
+
+# Parses strings like "var1 and (var2 or var3)" respecting operator precedence
+# and parentheses. After that transforms the parse tree into an array of
+# arrays like this:
+#
+# [["1", "2"], ["1", "3"]]
+#
+# The array represents a DNF (disjunctive normal form). Elements of outer
+# array are connected with "or" operator, while elements of inner arrays are
+# joined with "and".
+#
+class Mini < Parslet::Parser
+    rule(:integer) { match('[0-9]').repeat(1) }
+    root(:integer)
+end
+
+
+#pp tree = Parser.new.parse("var1 and (var2 or var3)")
+# {:and=>
+#   {:left=>{:var=>"1"@3},
+#    :right=>{:or=>{:left=>{:var=>"2"@13}, :right=>{:var=>"3"@21}}}}}
+#pp Transformer.new.apply(tree)
+# [["1", "2"], ["1", "3"]]
+

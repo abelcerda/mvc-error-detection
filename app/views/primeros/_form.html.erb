@@ -1,0 +1,38 @@
+<%= form_for(@primero) do |f| %>
+  <% if @primero.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(@primero.errors.count, "error") %> prohibited this primero from being saved:</h2>
+
+      <ul>
+      <% @primero.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="field">
+    <%= f.label :cadena %><br>
+    <%= f.text_field :cadena %>
+  </div>
+  <div class="field">
+    <%= f.label :archivo %><br>
+    <%= f.file_field :archivo %>
+  </div>
+  <div class="actions">
+    <%= f.submit %>
+  </div>
+
+  <%if !@leaves.nil?%>
+    <%= "Hola, esto es el array de los elementos del controlador" %>
+    <%= $elementsOfController %>
+    <% @leaves.each do |leave| %>
+      <% leave.select { |key, value| @ky = key; @val = value } 
+          if $elementsOfController.include?(@ky.to_s) %>
+          <h4>En esta linea: <%= @val[0] %> hay un operacion que corresponde a un CONTROLADOR </h4>
+      <% elsif $elementsOfModel.include?(@ky.to_s) %>
+          <h4>En esta linea: <%= @val[0] %> hay un operacion que corresponde a un MODELO </h4>
+      <% end %>
+    <% end %>
+  <%end%>
+<% end %>
