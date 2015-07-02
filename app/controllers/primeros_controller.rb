@@ -5,7 +5,7 @@ class PrimerosController < ApplicationController
   require 'ParserCanchero'
   require 'Hash'
   #variables para controlar elementos de un controlador y un modelo
-  @elementsToAnalizer = ["PDO_METHODS","PDO_STATEMENT","GET","POST","DBA_STATEMENT"]
+  $elementsToAnalizer = ["PDO_METHODS","PDO_STATEMENT","GET","POST","DBA_STATEMENT"]
   $elementsOfModel = ["PDO_METHODS","PDO_STATEMENT","DBA_STATEMENT"]
   $elementsOfController = ["GET","POST"]
   # GET /primeros
@@ -67,7 +67,7 @@ class PrimerosController < ApplicationController
     @leaves = []
     @i = 0
     stack_php.each_with_index do |stk,index|
-      @leaves,@i = self.analizer_sections(stk,@leaves,@i,offset_php[index]) # Envio el offset para que sea suamdo a cada fila de las hojas ue corresponden con los tokens
+      @leaves = self.analizer_sections(stk,@leaves,offset_php[index]) # Envio el offset para que sea suamdo a cada fila de las hojas ue corresponden con los tokens
     end
     puts "array cambiado"
     pp @leaves
@@ -83,35 +83,68 @@ class PrimerosController < ApplicationController
     end
   end
 
-  def analizer_sections(sections,leaves,index,offset)
+  def analizer_sections(sections,leaves,offset)
+    if sections.is_a?(Array)
+      @leaves = self.get_hashes(sections,@leaves,offset)
+    end
+    return @leaves
+=begin    
     sections.each do |trans|
         trans.select { |key, value| @auxi = value }
         @auxi,@leaves,@i = self.get_arrays(@auxi,@leaves,@i,offset)
         if @auxi.is_a?(Array)
           @auxi.each do |ax|
+            puts "---------------------- VALOR DE AX---------------------"
+            pp ax
             @requecho,@leaves,@i = self.get_arrays(ax,@leaves,@i,offset)
           end 
         end
     end
     return [leaves,index]
+=end
   end
 
-  def get_arrays(data,leaves,index,offset)
+  def get_arrays(data,leaves,offset)
     while data.is_a?(Hash)
-      data.select { |key, value| @auxi2 = value; @key_aux = key }
-      #if @key_aux.to_s.include?(@elementsToAnalizer)
-      if (@key_aux.to_s == "PDO_METHODS" || @key_aux.to_s == "PDO_STATEMENT" || @key_aux.to_s == "GET" || @key_aux.to_s == "POST" || @key_aux.to_s == "DBA_STATEMENT")
+      data.select { |key, value| @val = value; @key = key }
+      if $elementsToAnalizer.include?(@key.to_s)
         #Sumar el offset
-        @auxi2[0] = (@auxi2[0] + offset) - 1 
+        @val[0] = (@val[0] + offset) - 1 
         leaves.push(data)
-        index = index + 1
       end
-      data = @auxi2
+      data = @val
     end
-    return [data,leaves,index]
+    return [data,leaves] # Sale del while cuando encuentra que un hijo es Array  
+
   end
 
-  
+  def get_hashes(data,leaves,offset) #Recibe un array, data, y lo recorre xD
+    i = 0
+    while i < data.length
+      data[i].select { |key, value| @val = value; @key = key }
+      if @val.is_a?(Array)
+        if $elementsToAnalizer.include?(@key.to_s) # se puede dar el caso de {:TOKEN => [x,y]}, por eso pregunto si la llave esta en el array de token que nos interesan.
+          @val[0] = (@val[0] + offset) - 1 
+          leaves.push(data[i])
+          #i = i + 1
+        else
+          @val.each do |vl| #dado el caso {:KEY => [{},{},{}... {}]}, recorro el array y a cada hash lo pushe al array data.
+            data.push(vl) #coloco al final al array para analizarlo despues  
+          end
+          #i = i + 1
+        end
+      else
+        if @val.is_a?(Hash) # Solamente si @val es un hash se llama a get_arrays, sino se lo pasa de largo y se suma el i
+          @val,@leaves = self.get_arrays(@val,@leaves,offset)# Recorro el hash atraves de sus hijos.
+        end
+        #i = i + 1
+      end
+      i = i + 1
+    end
+    return @leaves
+  end
+
+
   def search_key(obj,key)
     if obj.respond_to?(:key?) && obj.key?(key)
       obj[key]

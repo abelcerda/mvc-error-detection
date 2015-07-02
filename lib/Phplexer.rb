@@ -1,7 +1,7 @@
 require 'parslet'
 require 'pp'
 
-class PhpLexer < Parslet::Parser
+class PhpLexer < Parslet::Parser 
 	rule(:space)			{ match('\s').repeat(1) }
     rule(:space?)			{ space.maybe }
     rule(:eol)			    { match('\n').repeat(1) }
@@ -9,7 +9,7 @@ class PhpLexer < Parslet::Parser
     rule(:blank)			{ space? | eol? }
     rule(:eof)              { any.absent? }
     rule(:space_aux)        { str(" ")}
-
+ 
     #rule(:script_body)      {(html_section | php_section) >> blank }
 
     #rule(:php_section)      { php_tag(close: false).as(:PHP_OPEN) >> blank >> php_code.as(:PHP_CODE) >> blank >> str("?>").as(:PHP_CLOSE) }
@@ -32,7 +32,7 @@ class PhpLexer < Parslet::Parser
                             continue.as(:CONTINUE)) >> str(";").maybe >> blank }
 #--------------- DBA statement ------------------
 	rule(:dba_statement)    { (str("dba_open") | str("dba_exists") | str("dba_close") | 
-                            str("dba_fetch") | str("dba_firstkey") | 
+                            str("dba_fetch") | str("dba_firstkey") | str("dba_delete") | 
                             str("dba_handlers") | str("dba_insert") | 
                             str("dba_key_split") | str("dba_list") | 
                             str("dba_optimize") | str("dba_sync") | 
@@ -189,7 +189,7 @@ class PhpLexer < Parslet::Parser
                             inherited_class.maybe.as(:INHERITED_CLASS) >> blank >> implements_class.maybe.as(:IMPLEMENTS_CLASS) >> 
                             blank >> coment.as(:CLASS_COMENT).maybe >> blank >> str("{") >> blank >> 
                             class_content.repeat.maybe >> blank >> str("}") ) >> blank }
-    rule(:inherited_class)  { str("extends") >> blank >> simple_string >> blank }
+    rule(:inherited_class)  { str("extends") >> blank >> simple_string }
     rule(:implements_class) { str("implements") >> blank >> simple_string >> blank }
     rule(:class_content)    { (vars_definition.as(:VARS) | methods.as(:METHODS) | coment) >> blank}
     rule(:vars_definition)  { (type_var_method.repeat.maybe >> blank >> str("var").maybe >> blank >> (var_assignment.as(:VA) | 
@@ -205,11 +205,12 @@ class PhpLexer < Parslet::Parser
 #--------------------------------------------------
 
 #------------------- Coment -----------------------
-    rule(:coment)           { ( block_coment.as(:BLOCK_COMENT) | line_coment.as(:LINE_COMENT) ) >> blank}
+    rule(:coment)           { ( block_coment | line_coment ) >> blank}
     rule(:line_coment)      { (str("//") | str("#")) >> blank >> lc_end }
     rule(:lc_end)           { eol | ( any >> lc_end ) >> blank }
-    rule(:block_coment)     { str('/*').as(:blc_open) >> blank >> bc_end }
-    rule(:bc_end)           { str('*/').as(:blc_close) | (any >> bc_end) >> blank}
+    #rule(:block_coment)     { str('/*').as(:blc_open) >> bc_end }
+    rule(:block_coment)     { (str('/*') >> (str('*/').absent? >> any).repeat >> str('*/')) }
+    #rule(:bc_end)           { str('*/').as(:blc_close) | (match('./@') >> bc_end) >> blank}
 #--------------------------------------------------
 
     rule(:namespace)        { ((str("namespace") | str("use")) >> blank >> ((str('\\') >> any) | (str(';').absent? >> any)).repeat >> str(';')) }
@@ -235,7 +236,7 @@ class PhpLexer < Parslet::Parser
                             variable) >> blank >> str(")").repeat.maybe >> blank >> operators >> 
                             blank).repeat.maybe >> (internal_function | array_one_position | variable) >> 
                             str(")").repeat) >> blank }
-    rule(:variable)         { ( class_atributte.as(:CLASS_ATRIBUTTE) | cadenas | array_one_position |
+    rule(:variable)         { ( class_atributte | cadenas | array_one_position |
                             simple_string | negative_decimal_numbers) >> blank }
     rule(:class_atributte)  { simple_string >> (str("->") >> (pdo_methods.as(:PDO_METHODS) | internal_function | 
                             array_one_position | simple_string)).repeat(1) >> blank}
@@ -356,7 +357,7 @@ cadena = "if($pepe){
 #if ($band){if ($band){$hola = 1}}else{if ($band){$hola = 1}}
 string = "$fields[$field->name] = $field->value;
         $response->response = '[accepted]';"
-archivo = File.read('/home/clifford/Documentos/archivos_prueba/php_test13.php')
+archivo = File.read('/home/clifford/Documentos/archivos_prueba/php_test17.php')
 #puts archivo.downcase
 id = parse archivo.downcase
 puts id
