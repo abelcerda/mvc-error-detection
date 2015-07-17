@@ -32,9 +32,9 @@ class PrimerosController < ApplicationController
   # POST /primeros.json
   def create
     @primero = Primero.new
-    uploaded_io = params[:primero][:archivo].read.downcase
+    @uploaded_io = params[:primero][:archivo].read.downcase
     #----------- Script Lexer--------------------
-    sections = ScriptLexer.new.parse(uploaded_io)
+    sections = ScriptLexer.new.parse(@uploaded_io)
     optimus = Transformio.new.apply(sections)
     offset_php = [] # Array que va a contener le offset que se le sumara a los elementos del array @leaves
     #--------------------------------------------
@@ -65,13 +65,18 @@ class PrimerosController < ApplicationController
     end
     @aux = Hash.new {|h,k| h[k]=[]}
     @leaves = []
+    @rows = []
     @i = 0
     stack_php.each_with_index do |stk,index|
-      @leaves = self.analizer_sections(stk,@leaves,offset_php[index]) # Envio el offset para que sea suamdo a cada fila de las hojas ue corresponden con los tokens
+      @leaves,@rows = self.analizer_sections(stk,@leaves,offset_php[index],@rows) # Envio el offset para que sea suamdo a cada fila de las hojas ue corresponden con los tokens
     end
-    puts "array cambiado"
-    pp @leaves
-
+    puts @leaves
+    #puts params[:primero][:archivo](149)
+    file1 = params[:primero][:archivo].open()
+    @rows = []
+    file1.each_with_index do |line,index|
+      @rows.push(line)
+    end
     respond_to do |format|
       if @leaves.nil?
         format.html { redirect_to @primero, notice: 'Primero was successfully created.' }
@@ -83,65 +88,50 @@ class PrimerosController < ApplicationController
     end
   end
 
-  def analizer_sections(sections,leaves,offset)
+  def analizer_sections(sections,leaves,offset,rows)
     if sections.is_a?(Array)
-      @leaves = self.get_hashes(sections,@leaves,offset)
+      @leaves,@rows = self.get_hashes(sections,@leaves,offset,rows)
     end
-    return @leaves
-=begin    
-    sections.each do |trans|
-        trans.select { |key, value| @auxi = value }
-        @auxi,@leaves,@i = self.get_arrays(@auxi,@leaves,@i,offset)
-        if @auxi.is_a?(Array)
-          @auxi.each do |ax|
-            puts "---------------------- VALOR DE AX---------------------"
-            pp ax
-            @requecho,@leaves,@i = self.get_arrays(ax,@leaves,@i,offset)
-          end 
-        end
-    end
-    return [leaves,index]
-=end
+    return [@leaves,@rows]
   end
 
-  def get_arrays(data,leaves,offset)
+  def get_arrays(data,leaves,offset,rows)
     while data.is_a?(Hash)
       data.select { |key, value| @val = value; @key = key }
       if $elementsToAnalizer.include?(@key.to_s)
         #Sumar el offset
-        @val[0] = (@val[0] + offset) - 1 
+        @val[0] = (@val[0] + offset) - 1
+        rows.push(@val[0]) 
         leaves.push(data)
       end
       data = @val
     end
-    return [data,leaves] # Sale del while cuando encuentra que un hijo es Array  
+    return [leaves,rows] # Sale del while cuando encuentra que un hijo es Array  
 
   end
 
-  def get_hashes(data,leaves,offset) #Recibe un array, data, y lo recorre xD
+  def get_hashes(data,leaves,offset,rows) #Recibe un array, data, y lo recorre xD
     i = 0
     while i < data.length
       data[i].select { |key, value| @val = value; @key = key }
       if @val.is_a?(Array)
         if $elementsToAnalizer.include?(@key.to_s) # se puede dar el caso de {:TOKEN => [x,y]}, por eso pregunto si la llave esta en el array de token que nos interesan.
-          @val[0] = (@val[0] + offset) - 1 
+          @val[0] = (@val[0] + offset) - 1
+          rows.push(@val[0]) 
           leaves.push(data[i])
-          #i = i + 1
         else
           @val.each do |vl| #dado el caso {:KEY => [{},{},{}... {}]}, recorro el array y a cada hash lo pushe al array data.
             data.push(vl) #coloco al final al array para analizarlo despues  
           end
-          #i = i + 1
         end
       else
         if @val.is_a?(Hash) # Solamente si @val es un hash se llama a get_arrays, sino se lo pasa de largo y se suma el i
-          @val,@leaves = self.get_arrays(@val,@leaves,offset)# Recorro el hash atraves de sus hijos.
+          leaves,rows = self.get_arrays(@val,leaves,offset,rows)# Recorro el hash atraves de sus hijos.
         end
-        #i = i + 1
       end
       i = i + 1
     end
-    return @leaves
+    return [leaves,rows]
   end
 
 

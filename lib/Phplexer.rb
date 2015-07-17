@@ -2,8 +2,6 @@ require 'parslet'
 require 'pp'
 
 class PhpLexer < Parslet::Parser 
-    @paren_stack = [] #Pila de parentesis para utilizar en la regla Operation
-    $band = false
 	rule(:space)			{ match('\s').repeat(1) }
     rule(:space?)			{ space.maybe }
     rule(:eol)			    { match('\n').repeat(1) }
@@ -22,7 +20,7 @@ class PhpLexer < Parslet::Parser
     						define_function.as(:FUNCTION) | exceptions.as(:EXCEPTION) | interafaces.as(:INTERFACES) | 
                             one_line_statement.as(:ONE_LINE_STATEMENT)).repeat >> blank}
 
-#    rule(:php_code) 		{ expresions >> blank }
+ #   rule(:php_code) 		{ dowhile_statement.as(:DOWHILE) >> blank }
 
     rule(:control_structure){ (while_statement.as(:WHILE) | if_statement.as(:IF) |
     						 dowhile_statement.as(:DO_WHILE) | foreach_statement.as(:FOREACH) | 
@@ -150,18 +148,18 @@ class PhpLexer < Parslet::Parser
                             blank }
     rule(:var_array)        {(array_multiple_positions.as(:ARRAY_MULTIPLE_POSITIONS) | 
     						array_one_position.as(:ARRAY_ONE_POSITION)) >> blank }
-    rule(:array_multiple_positions){ (str("array") >> blank >> str("(") >> blank >> (array_content | variable) >> blank >> 
+    rule(:array_multiple_positions){ (str("array") >> blank >> str("(") >> blank >> (array_content | variable) >> blank >>
     						str(")")) >> blank }
     rule(:array_one_position){ ((str("$_post").as(:POST) | str("$_get").as(:GET) | str("array") | simple_string) >> (str("[") >> blank >> 
                             (operation | internal_function | class_atributte | cadenas | variable).maybe >> blank >> str("]")).repeat(1)) >> blank }
     rule(:array_content)    { asociative_array.as(:ASOC_ARRAY) | elements_array.as(:SIMPLE_ARRAY) }
-    rule(:elements_array)   { (((var_array | variable) >> blank >> str(",") >> blank).repeat.maybe >> blank >> 
+    rule(:elements_array)   { (((var_array | variable) >> blank >> str(",") >> ((blank >> coment >> blank) | blank)).repeat(1) >> blank >> 
     						(var_array | variable)) >> blank }
     rule(:value_foreach)    { (asociative_array | variable) }
-    rule(:asociative_array) { ((class_atributte | cadenas | simple_string) >> blank >> str("=>") >> blank >> (class_atributte | var_array | internal_function | variable) >> 
-                            blank >> str(",") >> blank).repeat.maybe >> ((class_atributte | cadenas | simple_string) >> blank >> str("=>") >> 
-                            blank >> (var_array | internal_function | variable)) >> blank >> str(",").maybe >> blank }
-#OJO si no funciona porque coloque para hacer unas pruebas le internal funcion como valor de los arrays asociativos
+    rule(:asociative_array) { ((class_atributte | cadenas | simple_string) >> blank >> str("=>") >> blank >> (class_atributte | var_array | 
+                            internal_function | variable) >> blank >> str(",") >> ((blank >> coment >> blank) | blank)).repeat.maybe >> 
+                            ((class_atributte | cadenas | simple_string) >> blank >> str("=>") >> blank >> (var_array | internal_function | 
+                            variable)) >> blank }
 #--------------------------------------------------
 
 #------------------ Interfaces --------------------
@@ -173,8 +171,8 @@ class PhpLexer < Parslet::Parser
 
 #------------------- Do While ---------------------
     rule(:dowhile_statement){(str("do") >> blank >> coment.as(:DO_WHILE_COMENT).maybe >> blank >> str("{") >> blank >> 
-                            php_code >> blank >> str("}") >> blank >> str("while") >> blank >> ((str("(") >> 
-                            blank >> variable >> blank >> str(")")) | expresions.as(:DO_WHILE_OPERATION)) >> 
+                            php_code.maybe >> blank >> str("}") >> blank >> str("while") >> blank >> ((str("(") >> 
+                            blank >> variable >> blank >> str(")")) | operation.as(:DO_WHILE_OPERATION)) >> 
                             str(";")) >> coment.as(:COMENT_DOWHILE).maybe >> blank}
 #--------------------------------------------------
 
@@ -210,10 +208,10 @@ class PhpLexer < Parslet::Parser
 
 #------------------- Coment -----------------------
     rule(:coment)           { ( block_coment | line_coment ) >> blank}
-    rule(:line_coment)      { (str("//") | str("#")) >> blank >> lc_end }
-    rule(:lc_end)           { eol | ( any >> lc_end ) >> blank }
+    rule(:line_coment)      { (str("//") | str("#")) >> (match('\n').absent? >> any).repeat(1) >> blank }
     #rule(:block_coment)     { str('/*').as(:blc_open) >> bc_end }
     rule(:block_coment)     { (str('/*') >> (str('*/').absent? >> any).repeat >> str('*/')) }
+
     #rule(:bc_end)           { str('*/').as(:blc_close) | (match('./@') >> bc_end) >> blank}
 #--------------------------------------------------
 
@@ -230,12 +228,7 @@ class PhpLexer < Parslet::Parser
     rule(:rigth_part)       { (dba_statement.as(:DBA_STATEMENT) | pdo_statement.as(:PDO_STATEMENT) | operation.as(:OPERATION) | var_array.as(:ARRAY) | 
                             class_instantiation.as(:CLASS_INSTANTIATION) | 
                             internal_function.as(:FUNCTIONS) | class_atributte.as(:CLASS_ATTR) | variable) >> blank }
-=begin
-    rule(:operation)        { (str("(").repeat.maybe >> blank >> ((internal_function.as(:INTERNAL_FUNC) | array_one_position | 
-                            variable) >> blank >> str(")").repeat.maybe >> blank >> operators >> 
-                            blank).repeat(1) >> (internal_function.as(:INTERNAL_FUNC) | array_one_position | variable) >> 
-                            str(")").repeat.maybe) >> blank}
-=end
+
     rule(:expresions)       { ((str("(").repeat.maybe >> blank >> (internal_function | array_one_position | param_class | 
                             variable) >> blank >> str(")").repeat.maybe >> blank >> operators >> 
                             blank).repeat.maybe >> blank >> str("(").repeat.maybe >> blank >> (internal_function | array_one_position | 
@@ -279,22 +272,13 @@ class PhpLexer < Parslet::Parser
     rule(:without_paren)    { ((array_one_position | internal_function | class_atributte | cadenas |
                             variable) >> blank >> operators >> blank).repeat(1) >> blank >> (with_paren | (array_one_position | 
                             internal_function | class_atributte | cadenas | variable))}
-=begin
-    rule(:operation)        {((str("(").repeat.maybe >> blank >> (array_one_position | internal_function | class_atributte | cadenas |
-                            variable) >> blank >> str(")").repeat.maybe >> blank >> operators >> 
-                            blank).repeat(1) >> blank >> str("(").repeat.maybe >> blank >> (array_one_position | internal_function | 
-                            class_atributte | cadenas | variable) >> str(")").repeat.maybe) >> blank}
-=end
+
 
     rule(:parameters)       {((operation.as(:OP_PARAM) | class_atributte | var_array.as(:ARRAY_PARAM) | internal_function.as(:INT_FUNC_PARAM) | 
                             param_class.as(:PrmCL) | variable.as(:VAR_PARAM)) >> blank >> str(",") >> blank).repeat.maybe >> 
                             blank >> (operation.as(:OP_PARAM) | class_atributte | var_array.as(:ARRAY_PARAM) | internal_function.as(:INT_FUNC_PARAM) | 
                             param_class.as(:PrmCL) | variable) >> blank }
-=begin
-    rule(:parameters)       { (((var_array | operation.as(:OPERATION) | variable.as(:variable)) >> blank >> 
-                            str(",") >> blank).repeat.maybe >> blank >> (var_array | operation | 
-                            variable.as(:variable))) >> blank }
-=end
+
 
     rule(:exponentIndicator){ match("[eE]") }
     rule(:signedInteger)    { match("[+-]").maybe >> match("[0-9]").repeat(1) }
@@ -373,10 +357,10 @@ cadena = "if($pepe){
 #if ($band){if ($band){$hola = 1}}else{if ($band){$hola = 1}}
 string = "$fields[$field->name] = $field->value;
         $response->response = '[accepted]';"
-archivo = File.read('/home/clifford/Documentos/archivos_prueba/php_test23.php')
+archivo = File.read('/home/clifford/Documentos/archivos_prueba/php_test24.php')
 #puts archivo.downcase
 id = parse archivo.downcase
 puts id
 puts"*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*"
-#optimus = Transformer.new.apply(id)
-#pp optimus
+optimus = Transformer.new.apply(id)
+pp optimus

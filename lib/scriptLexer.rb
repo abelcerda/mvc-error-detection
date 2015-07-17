@@ -12,7 +12,7 @@ class ScriptLexer < Parslet::Parser
 
     rule(:script_body)      {(php_section | html_section.as(:HTML_SECTION)).repeat >> blank }
 
-    rule(:php_section)      { str("<?php") >> php_code.as(:PHP_CODE) >> str("?>")}
+    rule(:php_section)      { str("<?php") >> php_code.as(:PHP_CODE).maybe >> str("?>")}
     rule(:php_code)         { ((str("?>").absent? >> any).repeat(1)) }
     rule(:html_section)		{ (str("<?php").absent? >> any).repeat(1)} #<?php
 
