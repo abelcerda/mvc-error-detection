@@ -4,7 +4,8 @@ require 'yaml'
 require_relative 'HTMLCodeAnalyzer'
 
 class HTML_Engine
-    def runHTML
+  #  this method receives a parameter that indicates wether the javascript code should be saved or not.
+    def runHTML(code, run_js=false)
         cadena = "<!DOCTYPE html PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN' 'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'>
         <!-- saved from url=(0183)http://recursostic.educacion.es/observatorio/web/ca/equipamiento-tecnologico/seguridad-y-mantenimiento/803-creacion-de-un-dispositivo-de-memoria-usb-multi-arranque-formateado-con-ntfs -->
 
@@ -70,27 +71,28 @@ function openIEalert()
         </script>
         </head>"
         archivo = File.read('/media/abel/Datos/Mis Documentos/IP estatica en Linux, manualmente - Taringa!.htm')
-        id = Mini.new.parse(cadena.downcase)
-        #pp id
+        id = Mini.new.parse(code)
 #        puts "----HTML-Engine START----"
-        #pp id[0][:SCRIPT_EMBEDDED][:NOSCR].to_str
         optimus= Transformer.new.apply(id)
-#        pp optimus
-#        puts optimus.size
         final=[]    #la posición 0 será para los JS_INLINE y la 1 para los código JS que deberán ser analizados
         final << []
-        final << []
+        if run_js
+          final << []
+        end
         optimus.each do |resto|
             if resto
                 if resto.has_key?(:JS_INLINE)
                     final[0] << resto[:JS_INLINE]
                 else
-                    final[1] << resto
+                    if !resto.empty? && run_js
+                        final[1] << resto
+                    end
                 end
             end
         end
 #        puts "----HTML-Engine END----"
-#        pp final
         final
     end
 end
+
+#pp HTML_Engine.new.runHTML #test purpose only

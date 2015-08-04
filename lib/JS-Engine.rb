@@ -3,8 +3,12 @@ require_relative 'ecmascript'
 
 class JS_Engine
     def runJS(code)
-        javs = parseEcma(code)
-        #en este espacio se debería hacer la transformaciónEcma y acomodar los tags para encontrar los elemento relevantes
-        TransformerEcma.new.apply(javs)
+        parsed = TransformerEcma.new.apply(parseEcma(code))
+        parsed = parsed.select { |p| !p.nil? }
+        while (!parsed.empty? && !parsed[0].is_a?(Hash))  # the loop ends when finds that the array is empty or the array contains directly the hash
+          parsed = parsed.flatten
+        end
+        parsed
     end
+    
 end

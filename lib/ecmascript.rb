@@ -59,10 +59,10 @@ class MiniEcma < Parslet::Parser
     
     
     # REVISAR. Línea 44
-    rule(:regexpLiteral)                                    { (str("<REGEXP>") >> regularExpressionLiteral).as(:REGEXP_LITERAL) }
+    rule(:regexpLiteral)                                    { str("<REGEXP>") >> regularExpressionLiteral }
     rule(:brPlus)                                           { (match("\r\n") | match("\n") | match("\n")).repeat(1) >> match("\s").repeat >> str("++") }
     rule(:brMinus)                                          { (match("\r\n") | match("\n") | match("\n")).repeat(1) >> match("\s").repeat >> str("--") }
-    rule(:newLine_space)                                    { (match("\s").repeat(1) >> match(/\r|\n/)).as(:SEMICOLON_SPACE) }
+    rule(:newLine_space)                                    { match("\s").repeat(1) >> match(/\r|\n/) }
     
     # 7.4 Comments
     rule(:comment)                                  { (multiLineComment | singleLineComment).repeat(1) >> blank? }    
@@ -114,7 +114,7 @@ class MiniEcma < Parslet::Parser
     
     
     # Definición de Producciones Gramaticales
-    rule(:statement)                        { comment | block | breakStatement.as(:BREAK_STAT) | continueStatement | debuggerStatement.as(:DEBUGGER_STAT) | ifStatement | iterationStatement.as(:ITER_STAT) | returnStatement | withStatement.as(:WITH_STAT) | switchStatement | throwStatement | tryStatement.as(:TRY_STAT) | expressionStatement | labelledStatement | variableStatement | emptyStatement }
+    rule(:statement)                        { comment | block | breakStatement | continueStatement | debuggerStatement | ifStatement | iterationStatement | returnStatement | withStatement | switchStatement | throwStatement | tryStatement | expressionStatement | labelledStatement | variableStatement | emptyStatement }
     rule(:block)                            { str("{") >> blank? >> statementList >> blank? >> str("}") >> blank? }
     rule(:statementList)                    { (statement >> blank?).repeat }
     rule(:variableStatement)                { var >> space >> variableDeclarationList >> space? >> ((str(";") | lineTerminator | str("}").present?) >> blank? | eof) }
@@ -128,8 +128,8 @@ class MiniEcma < Parslet::Parser
     rule(:expressionStatement)              { expressionNoBF >> space? >> ((semicolon | lineTerminator | str("}").present?) >> blank? | eof) }
     rule(:ifStatement)                      { str("if") >> space? >> str("(") >> space? >> expression >> space? >> str(")") >> blank? >> comment.repeat(1).maybe >> statement >> blank? >> (str("else") >> blank? >> statement >> blank?).maybe  }
     rule(:iterationStatement)               { str("do") >> blank? >> statement >> space? >> str("while") >> space? >> str("(") >> space? >> expression >> space? >> str(")") >> space? >> ((semicolon | lineTerminator | str("}").present?) >> blank? | eof) |
-                                            str("while") >> space? >> str("(") >> space? >> expression >> space? >> str(")") >> blank? >> (statement >> blank?).repeat(1) |
-                                            (str("for") >> space? >> str("(") >> space? >> expressionNoIn.as(:EXP_NOIN).maybe >> space? >> semicolon >> space? >> expression.maybe >> space? >> semicolon >> space? >> expression.maybe >> space? >> str(")") >> blank? >> statement.as(:STATEMENT) >> blank?).as(:FOR_STAT) |
+                                            str("while") >> space? >> str("(") >> blank? >> expression >> blank? >> str(")") >> blank? >> (statement >> blank?).repeat(1) |
+                                            (str("for") >> space? >> str("(") >> space? >> expressionNoIn.maybe >> space? >> semicolon >> space? >> expression.maybe >> space? >> semicolon >> space? >> expression.maybe >> space? >> str(")") >> blank? >> statement.as(:STATEMENT) >> blank?).as(:FOR_STAT) |
                                             str("for") >> space? >> str("(") >> space? >> var >> space >> variableDeclarationListNoIn >> space? >> str(";") >> space? >> expression.maybe >> space? >> str(";") >> space? >> expression.maybe >> space? >> str(")") >> blank? >> statement >> blank? |
                                             str("for") >> space? >> str("(") >> space? >> leftHandSideExpression >> space >> str("in") >> space >> expression >> space? >> str(")") >> blank? >> statement >> blank? |
                                             str("for") >> space? >> str("(") >> space? >> var >> space >> variableDeclarationNoIn >> space >> str("in") >> space >> expression >> space? >> str(")") >> blank? >> statement >> blank? }
@@ -137,34 +137,34 @@ class MiniEcma < Parslet::Parser
     rule(:breakStatement)                   { str("break") >> space? >> (identifier >> space?).maybe >> ((semicolon | lineTerminator | str("}").present?) >> blank? | eof) }
     rule(:returnStatement)                  { str("return") >> space? >> (expression >> space?).maybe >> ((semicolon | lineTerminator | (blank? >> str("}")).present?) >> blank? | eof) }
     rule(:withStatement)                    { str("with") >> space? >> str("(") >> space? >> expression >> space? >> str(")") >> space? >> statement }
-    rule(:switchStatement)                  { str("switch") >> space? >> str("(") >> space? >> expression.as(:EXPRES) >> space? >> str(")") >> blank? >> caseBlock }
+    rule(:switchStatement)                  { str("switch") >> space? >> str("(") >> space? >> expression >> space? >> str(")") >> blank? >> caseBlock }
     rule(:caseBlock)                        { str("{") >> blank? >> caseClauses >> blank? >>(defaultClause >> blank? >> caseClauses).maybe >> str("}") }
     rule(:caseClauses)                      { caseClause.repeat(1) }
     rule(:caseClause)                       { str("case") >> space >> expression >> space? >> str(":") >> blank? >> statementList }
     rule(:defaultClause)                    { str("default") >> space? >> str(":") >> blank? >> statementList }
     rule(:labelledStatement)                { identifier >> space? >> str(":") >> blank? >> statement }
     rule(:throwStatement)                   { str("throw") >> space >> expression >> space? >> ((str(";") | lineTerminator | str("}").present?) >> blank? | eof)}#| str("throw") >> expression >> error }
-    rule(:tryStatement)                     { (str("try") >> space? >> block >> blank?).as(:TRY) >> (catchRule.as(:CATCH)  >> blank? >> finally.as(:FINALLY) | catchRule.as(:CATCH) | finally.as(:FINALLY)) >> blank? }
+    rule(:tryStatement)                     { (str("try") >> space? >> block >> blank?) >> (catchRule  >> blank? >> finally | catchRule | finally) >> blank? }
     rule(:catchRule)                        { str("catch") >> space? >> str("(") >> space? >> identifier >> space? >> str(")") >> space? >> block }
     rule(:finally)                          { str("finally") >> space? >> block }
     rule(:debuggerStatement)                { str("debugger") >> space? >> str(";") >> blank? }
-    rule(:functionDeclaration)              { str("function") >> space >> identifier >> str("(") >> space? >> formalParameterList.as(:PARAM_LST).maybe >> space? >> str(")") >> blank? >> str("{") >> blank? >> functionBody >> blank? >> str("}") }
-    rule(:functionExpression)               { str("function") >> (space >> identifier >> space?).maybe >> str("(") >> space? >> formalParameterList.maybe >> space? >> str(")") >> blank? >> str("{") >> blank? >> functionBody >> blank? >> str("}") >> blank? }
-    rule(:formalParameterList)              { identifier >> (space? >> str(",") >> space? >> identifier).repeat(1).maybe }
+    rule(:functionDeclaration)              { str("function") >> space >> identifier >> str("(") >> space? >> formalParameterList.maybe >> space? >> str(")") >> blank? >> str("{") >> blank? >> functionBody >> blank? >> str("}") >> blank? }
+    rule(:functionExpression)               { str("function") >> (space >> identifier >> space?).maybe >> space? >> str("(") >> blank? >> formalParameterList.maybe >> blank? >> str(")") >> blank? >> str("{") >> blank? >> functionBody >> blank? >> str("}") >> blank? }
+    rule(:formalParameterList)              { identifier >> (blank? >> str(",") >> blank? >> identifier).repeat(1).maybe }
     rule(:functionBody)                     { sourceElements.maybe }
     rule(:program)                          { sourceElements.repeat(1) >> eof }
     rule(:sourceElements)                   { sourceElement.repeat(1) }
     rule(:sourceElement)                    { functionDeclaration.as(:FN_DEC) | statement.as(:STAT) } # 
     rule(:primaryExpression)                { primaryExpressionNoBrace | objectLiteral }
-    rule(:primaryExpressionNoBrace)         { str("this") | identifier | literal | arrayLiteral.as(:ARR_LIT) | str("(") >> space? >> expression >> space? >> str(")") }
-    rule(:arrayLiteral)                     { str("[") >> space? >> str("]") |
-                                            str("[") >> space? >> elementList >> space? >> str(",") >> space? >> elision >> space? >> str("]") |
-                                            str("[") >> space? >> elementList >> space? >> str(",") >> space? >> str("]") |
-                                            str("[") >> space? >> elementList >> space? >> str("]") |
-                                            str("[") >> space? >> elision >> space? >> str("]") }
-    rule(:elementList)                      { assignmentExpression >> space? >> str(",") >> space? >> elementList |
+    rule(:primaryExpressionNoBrace)         { str("this") | identifier | literal | arrayLiteral | str("(") >> space? >> expression >> space? >> str(")") }
+    rule(:arrayLiteral)                     { str("[") >> blank? >> str("]") |
+                                            str("[") >> blank? >> elementList >> blank? >> str(",") >> blank? >> elision >> blank? >> str("]") |
+                                            str("[") >> blank? >> elementList >> blank? >> str(",") >> blank? >> str("]") |
+                                            str("[") >> blank? >> elementList >> blank? >> str("]") |
+                                            str("[") >> blank? >> elision >> blank? >> str("]") }
+    rule(:elementList)                      { assignmentExpression >> blank? >> str(",") >> blank? >> elementList |
                                             assignmentExpression | 
-                                            elision >> assignmentExpression >> (  space? >> str(",") >> space? >> elementList ).maybe }
+                                            elision >> assignmentExpression >> (  blank? >> str(",") >> blank? >> elementList ).maybe }
     rule(:elision)                          { str(",").repeat(1) }
     rule(:objectLiteral)                    { str("{") >> blank? >> ( propertyNameAndValueList >> space? >> str(",").maybe ).maybe >> blank? >> str("}") }
     rule(:propertyNameAndValueList)         { propertyAssignment >> (blank? >> str(",") >> blank? >> propertyAssignment).repeat(1).maybe }
@@ -172,18 +172,18 @@ class MiniEcma < Parslet::Parser
     rule(:propertyName)                     { identifierName | stringLiteral | numericLiteral }
     rule(:propertySetParameterList)         { identifier }
     rule(:newExpression)                    { memberExpression | str("new") >> space >> newExpression }
-    rule(:newExpressionNoBF)                { memberExpressionNoBF | (str("new") >> space >> newExpression).as(:NEBF) }
-    rule(:callExpression)                   { memberExpression >> arguments >> (arguments | blank?>>str("[") >> space? >> expression >> space? >> str("]") | blank?>>str(".") >> identifierName).repeat(1) |
+    rule(:newExpressionNoBF)                { memberExpressionNoBF | (str("new") >> space >> newExpression) }
+    rule(:callExpression)                   { memberExpression >> arguments >> (arguments | blank?>>str("[") >> blank? >> expression >> blank? >> str("]") | blank?>>str(".") >> identifierName).repeat(1) |
                                              memberExpression >> arguments }
-    rule(:callExpressionNoBF)               { memberExpressionNoBF >> arguments >> (arguments | blank?>> str("[") >> space? >> expression >> space? >> str("]") | blank?>> str(".") >> identifierName).repeat(1) |
+    rule(:callExpressionNoBF)               { memberExpressionNoBF >> arguments >> (arguments | blank?>> str("[") >> blank? >> expression >> blank? >> str("]") | blank?>> str(".") >> identifierName).repeat(1) |
                                             memberExpressionNoBF >> arguments }
     rule(:memberExpression)                 { str("new") >> space >> memberExpression >> arguments |
-                                              ( functionExpression | primaryExpression) >> (blank? >> str("[") >> space? >> expression >> space? >> str("]") | blank? >> str(".") >> identifierName).repeat(1) | (functionExpression | primaryExpression) }
+                                              ( functionExpression | primaryExpression) >> (blank? >> str("[") >> blank? >> expression >> blank? >> str("]") | blank? >> str(".") >> identifierName).repeat(1) | (functionExpression | primaryExpression) }
     rule(:memberExpressionNoBF)             { str("new") >> space >> memberExpression >> arguments |
-                                            primaryExpressionNoBrace >> (blank?>> str("[") >> space? >> expression >> space? >> str("]") | blank? >> str(".") >> identifierName).repeat(1) | primaryExpressionNoBrace }
+                                            primaryExpressionNoBrace >> (blank?>> str("[") >> blank? >> expression >> blank? >> str("]") | blank? >> str(".") >> identifierName).repeat(1) | primaryExpressionNoBrace }
     rule(:identifierName)                   { (reservedWord >> (space.present? | lineTerminator.present?))| identifier }
-    rule(:arguments)                        { str("(") >> space? >> argumentList.maybe >> space? >> str(")") }
-    rule(:argumentList)                     { assignmentExpression >> space? >> ( str(",") >> space? >> assignmentExpression ).repeat(1).maybe }
+    rule(:arguments)                        { str("(") >> blank? >> argumentList.maybe >> blank? >> str(")") }
+    rule(:argumentList)                     { assignmentExpression >> blank? >> ( str(",") >> blank? >> assignmentExpression ).repeat(1).maybe }
     rule(:leftHandSideExpression)           { callExpression | newExpression }
     rule(:leftHandSideExpressionNoBF)       { callExpressionNoBF | newExpressionNoBF }
     rule(:postfixExpression)                { leftHandSideExpression >> str("++") |
@@ -212,7 +212,7 @@ class MiniEcma < Parslet::Parser
     rule(:relationalExpression)             { shiftExpression >> (space? >> (str("<=") | str(">=") | str("<") | str(">") | str("instanceof") | str("in")) >> space? >> shiftExpression).repeat(1).maybe }
     rule(:relationalExpressionNoIn)         { shiftExpression >> (space? >> (str("<=") | str(">=") | str("<") | str(">") | str("instanceof")) >> space? >> shiftExpression).repeat(1).maybe }
     rule(:relationalExpressionNoBF)         { shiftExpressionNoBF >> (space? >> (str("<=") | str(">=") | str("<") | str(">") | str("instanceof") | str("in")) >> space? >> shiftExpression).repeat(1).maybe }
-    rule(:equalityExpression)               { relationalExpression >> (space? >> (str("==")|str("!==")|str("!=")) >> space? >> relationalExpression).repeat(1).maybe }
+    rule(:equalityExpression)               { relationalExpression >> (space? >> (str("===") | str("==")|str("!==")|str("!=")) >> space? >> relationalExpression).repeat(1).maybe }
     rule(:equalityExpressionNoIn)           { relationalExpressionNoIn >> (space? >> (str("===") | str("==") | str("!==") | str("!=")) >> space? >> relationalExpressionNoIn).repeat(1).maybe }
     rule(:equalityExpressionNoBF)           { relationalExpressionNoBF >> (space? >> (str("==")|str("!==")|str("!=")) >> space? >> relationalExpression).repeat(1).maybe }
     rule(:bitwiseANDExpression)             { equalityExpression >> (blank? >> str("&") >> blank? >> equalityExpression).repeat(1).maybe }  
@@ -233,11 +233,11 @@ class MiniEcma < Parslet::Parser
     rule(:conditionalExpression)            { logicalORExpression >> (space? >> str("?") >> space? >> assignmentExpression >> space? >> str(":") >> blank? >> assignmentExpression).maybe }
     rule(:conditionalExpressionNoIn)        { logicalORExpressionNoIn >> (space? >> str("?") >> space? >> assignmentExpression >> space? >> str(":") >> blank? >> assignmentExpressionNoIn).maybe }
     rule(:conditionalExpressionNoBF)        { logicalORExpressionNoBF >> (space? >> str("?") >> space? >> assignmentExpression >> space? >> str(":") >> blank? >> assignmentExpression).maybe }
-    rule(:assignmentExpression)             { leftHandSideExpression.as(:LFS_EXP) >> blank? >> str("=") >> blank? >> assignmentExpression |
+    rule(:assignmentExpression)             { leftHandSideExpression >> blank? >> str("=") >> blank? >> assignmentExpression |
                                             leftHandSideExpression >> blank? >> assignmentOperator >> blank? >> assignmentExpression |
                                             conditionalExpression}
-    rule(:assignmentExpressionNoIn)         { leftHandSideExpression.as(:LHS_EXP) >> blank? >> str("=") >> blank? >> assignmentExpressionNoIn.as(:ASSIGN_EXP_NOIN) |
-                                            leftHandSideExpression.as(:LHS_EXP) >> blank? >> assignmentOperator >> blank? >> assignmentExpressionNoIn.as(:ASSIGN_EXP_NOIN) | conditionalExpressionNoIn }
+    rule(:assignmentExpressionNoIn)         { leftHandSideExpression >> blank? >> str("=") >> blank? >> assignmentExpressionNoIn |
+                                            leftHandSideExpression >> blank? >> assignmentOperator >> blank? >> assignmentExpressionNoIn | conditionalExpressionNoIn }
     rule(:assignmentExpressionNoBF)         { leftHandSideExpressionNoBF >> blank? >> str("=") >> blank? >> assignmentExpression |
                                             leftHandSideExpressionNoBF >> blank? >> assignmentOperator >> blank? >> assignmentExpression |
                                             conditionalExpressionNoBF}
@@ -283,20 +283,60 @@ class TransformerEcma < Parslet::Transform
     rule(:XMLHTTP => simple(:x)){
         xObj={}
         res={}
-        xObj[:TYPE] = x
-        xObj[:POS] = x.line_and_column
-        res[:XOBJ]= xObj
+#        xObj[:TYPE] = x
+#        xObj[:POS] = x.line_and_column
+#        res[:XOBJ]= xObj
+        res[:MODEL]= x.line_and_column
+        res[:TYPE] = x
         res
         }
     rule(:DOM_EV => simple(:x)){
         res={}
         res[:CONTROLLER]=x.line_and_column
+        res[:TYPE] = x
         res
         }
     rule(:STAT => simple(:x)){
         }
     rule(:FN_DEC => subtree(:x)){
-        x
+        if x    
+            if x.is_a?(Array)
+    #            if !(x.all? &:nil?)
+                    x.select { |algo| !algo.nil? }
+    #            end
+            else
+                if x.is_a?(Hash)
+                    [x.select { |k,v| !v.nil? }]
+                end
+            end
+        end
+        }
+    rule(:STAT => subtree(:x)){
+        if x    
+#            if x.is_a?(Array)
+#    #            if !(x.all? &:nil?)
+#                    x.select { |algo| !algo.nil? }
+#    #            end
+#            else
+#                if x.is_a?(Hash)
+#                    [x.select { |k,v| !v.nil? }]
+#                end
+#            end
+            
+            if x.is_a?(Hash)
+                x
+            else
+                if x.is_a?(Array)
+                    y = x.select { |algo| !algo.nil? }  #y es array sin elementos nulos
+                    if y.size   #para un array no vacío
+                        z = y.select { |a| a.is_a?(Hash)}
+                        if !z.empty?
+                            z
+                        end
+                    end
+                end
+            end
+        end
         }
 #    rule(:STAT => subtree(:x)){
 #        if !x.blank?
