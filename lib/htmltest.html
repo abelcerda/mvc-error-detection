@@ -1,17 +1,5 @@
-# encoding: UTF-8
-require 'pp'
-require 'yaml'
-
-require_relative 'HTMLCodeAnalyzer'
-
-class HTML_Engine
-  #  this method receives a parameter that indicates wether the javascript code should be saved or not.
-    def runHTML(code, run_js=false)
-
-=begin      
-        cadena = "<!DOCTYPE html PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN' 'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'>
+<!DOCTYPE html PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN' 'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'>
         <!-- saved from url=(0183)http://recursostic.educacion.es/observatorio/web/ca/equipamiento-tecnologico/seguridad-y-mantenimiento/803-creacion-de-un-dispositivo-de-memoria-usb-multi-arranque-formateado-con-ntfs -->
-
         <html xmlns='http://www.w3.org/1999/xhtml'><object type='{0C55C096-0F1D-4F28-AAA2-85EF591126E7}' cotype='cs' id='cosymantecbfw' style='width: 0px; height: 0px; display: block;'></object><head><meta http-equiv='Content-Type' content='text/html; charset=UTF-8'><HEAD><br onclick='do something()'> <script> 
         $(document).ready(function(){ //cuando el html fue cargado iniciar
 
@@ -72,36 +60,4 @@ function openIEalert()
 				openIEalert();
 			}
         </script>
-        </head>"
-        archivo = File.read('/media/abel/Datos/Mis Documentos/IP estatica en Linux, manualmente - Taringa!.htm')
-=end
-      id = Mini.new.parse(code)
-#        puts "----HTML-Engine START----"
-        optimus= Transformer.new.apply(id)
-        final=[]    #la posición 0 será para los JS_INLINE y la 1 para los código JS que deberán ser analizados
-        final << []
-        if run_js
-          final << []
-        end
-#        puts "pti"
-#        pp optimus
-#        puts "mus"
-        optimus.each do |resto|
-            if resto
-                if resto.has_key?(:JS_INLINE)
-                    final[0] << resto[:JS_INLINE]
-                end
-                if resto.has_key?(:SCRIPT_EMB)
-                    final[0] << resto[:SCRIPT_EMB]
-                    if run_js && resto.has_key?(:JS_CODE)
-                      final[1] << { :JS_CODE => resto[:JS_CODE] }
-                    end
-                end
-            end
-        end
-#        puts "----HTML-Engine END----"
-        final
-    end
-end
-
-#pp HTML_Engine.new.runHTML("doe",true) #test purpose only
+        </head>

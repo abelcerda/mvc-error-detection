@@ -1,8 +1,14 @@
 Rails.application.routes.draw do
-  resources :primeros
-
+  resources :primeros do
+    collection do
+      get 'new_html'
+      post 'html'
+      get 'html'
+    end
+  end
   get 'nuevo/index'
 
+  resources :html_codes
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".
 

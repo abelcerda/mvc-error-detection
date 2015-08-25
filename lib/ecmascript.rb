@@ -203,18 +203,18 @@ class MiniEcma < Parslet::Parser
                                             str("-") >> unaryExpression |
                                             str("~") >> unaryExpression |
                                             str("!") >> unaryExpression }
-    rule(:multiplicativeExpression)         { unaryExpression >> (space? >> (str("*") | str("/") | str("%")) >> space? >> unaryExpression).repeat(1).maybe }
-    rule(:multiplicativeExpressionNoBF)     { unaryExpressionNoBF >> (space? >> (str("*") | str("/") | str("%")) >> space? >> unaryExpression).repeat(1).maybe }
-    rule(:additiveExpression)               { multiplicativeExpression >> (space? >> (str("+") | str("-")) >> space? >> multiplicativeExpression).repeat(1).maybe }
-    rule(:additiveExpressionNoBF)           { multiplicativeExpressionNoBF >> (space? >> (str("+") | str("-")) >> space? >> multiplicativeExpression).repeat(1).maybe }
-    rule(:shiftExpression)                  { additiveExpression >> (space? >> (str(">>>") | str(">>") | str("<<")) >> space? >> additiveExpression).repeat(1).maybe }
-    rule(:shiftExpressionNoBF)              { additiveExpressionNoBF >> (space? >> (str(">>>") | str(">>") | str("<<")) >> space? >> additiveExpression).repeat(1).maybe }
-    rule(:relationalExpression)             { shiftExpression >> (space? >> (str("<=") | str(">=") | str("<") | str(">") | str("instanceof") | str("in")) >> space? >> shiftExpression).repeat(1).maybe }
-    rule(:relationalExpressionNoIn)         { shiftExpression >> (space? >> (str("<=") | str(">=") | str("<") | str(">") | str("instanceof")) >> space? >> shiftExpression).repeat(1).maybe }
-    rule(:relationalExpressionNoBF)         { shiftExpressionNoBF >> (space? >> (str("<=") | str(">=") | str("<") | str(">") | str("instanceof") | str("in")) >> space? >> shiftExpression).repeat(1).maybe }
-    rule(:equalityExpression)               { relationalExpression >> (space? >> (str("===") | str("==")|str("!==")|str("!=")) >> space? >> relationalExpression).repeat(1).maybe }
-    rule(:equalityExpressionNoIn)           { relationalExpressionNoIn >> (space? >> (str("===") | str("==") | str("!==") | str("!=")) >> space? >> relationalExpressionNoIn).repeat(1).maybe }
-    rule(:equalityExpressionNoBF)           { relationalExpressionNoBF >> (space? >> (str("==")|str("!==")|str("!=")) >> space? >> relationalExpression).repeat(1).maybe }
+    rule(:multiplicativeExpression)         { unaryExpression >> (blank? >> (str("*") | str("/") | str("%")) >> blank? >> unaryExpression).repeat(1).maybe }
+    rule(:multiplicativeExpressionNoBF)     { unaryExpressionNoBF >> (blank? >> (str("*") | str("/") | str("%")) >> blank? >> unaryExpression).repeat(1).maybe }
+    rule(:additiveExpression)               { multiplicativeExpression >> (blank? >> (str("+") | str("-")) >> blank? >> multiplicativeExpression).repeat(1).maybe }
+    rule(:additiveExpressionNoBF)           { multiplicativeExpressionNoBF >> (blank? >> (str("+") | str("-")) >> blank? >> multiplicativeExpression).repeat(1).maybe }
+    rule(:shiftExpression)                  { additiveExpression >> (blank? >> (str(">>>") | str(">>") | str("<<")) >> blank? >> additiveExpression).repeat(1).maybe }
+    rule(:shiftExpressionNoBF)              { additiveExpressionNoBF >> (blank? >> (str(">>>") | str(">>") | str("<<")) >> blank? >> additiveExpression).repeat(1).maybe }
+    rule(:relationalExpression)             { shiftExpression >> (blank? >> (str("<=") | str(">=") | str("<") | str(">") | str("instanceof") | str("in")) >> space? >> shiftExpression).repeat(1).maybe }
+    rule(:relationalExpressionNoIn)         { shiftExpression >> (blank? >> (str("<=") | str(">=") | str("<") | str(">") | str("instanceof")) >> blank? >> shiftExpression).repeat(1).maybe }
+    rule(:relationalExpressionNoBF)         { shiftExpressionNoBF >> (blank? >> (str("<=") | str(">=") | str("<") | str(">") | str("instanceof") | str("in")) >> blank? >> shiftExpression).repeat(1).maybe }
+    rule(:equalityExpression)               { relationalExpression >> (blank? >> (str("===") | str("==")|str("!==")|str("!=")) >> blank? >> relationalExpression).repeat(1).maybe }
+    rule(:equalityExpressionNoIn)           { relationalExpressionNoIn >> (blank? >> (str("===") | str("==") | str("!==") | str("!=")) >> blank? >> relationalExpressionNoIn).repeat(1).maybe }
+    rule(:equalityExpressionNoBF)           { relationalExpressionNoBF >> (blank? >> (str("==")|str("!==")|str("!=")) >> blank? >> relationalExpression).repeat(1).maybe }
     rule(:bitwiseANDExpression)             { equalityExpression >> (blank? >> str("&") >> blank? >> equalityExpression).repeat(1).maybe }  
     rule(:bitwiseANDExpressionNoIn)         { equalityExpressionNoIn >> (blank? >> str("&") >> blank? >> equalityExpressionNoIn).repeat(1).maybe }  
     rule(:bitwiseANDExpressionNoBF)         { equalityExpressionNoBF >> (blank? >> str("&") >> blank? >> equalityExpression).repeat(1).maybe }
@@ -230,9 +230,9 @@ class MiniEcma < Parslet::Parser
     rule(:logicalORExpression)              { logicalANDExpression >> (blank? >> str("||") >> blank? >> logicalANDExpression).repeat(1).maybe }
     rule(:logicalORExpressionNoIn)          { logicalANDExpressionNoIn >> (blank? >> str("||") >> blank? >> logicalANDExpressionNoIn).repeat(1).maybe } 
     rule(:logicalORExpressionNoBF)          { logicalANDExpressionNoBF >> (blank? >> str("||") >> blank? >> logicalANDExpression).repeat(1).maybe } 
-    rule(:conditionalExpression)            { logicalORExpression >> (space? >> str("?") >> space? >> assignmentExpression >> space? >> str(":") >> blank? >> assignmentExpression).maybe }
-    rule(:conditionalExpressionNoIn)        { logicalORExpressionNoIn >> (space? >> str("?") >> space? >> assignmentExpression >> space? >> str(":") >> blank? >> assignmentExpressionNoIn).maybe }
-    rule(:conditionalExpressionNoBF)        { logicalORExpressionNoBF >> (space? >> str("?") >> space? >> assignmentExpression >> space? >> str(":") >> blank? >> assignmentExpression).maybe }
+    rule(:conditionalExpression)            { logicalORExpression >> (blank? >> str("?") >> blank? >> assignmentExpression >> space? >> str(":") >> blank? >> assignmentExpression).maybe }
+    rule(:conditionalExpressionNoIn)        { logicalORExpressionNoIn >> (blank? >> str("?") >> blank? >> assignmentExpression >> space? >> str(":") >> blank? >> assignmentExpressionNoIn).maybe }
+    rule(:conditionalExpressionNoBF)        { logicalORExpressionNoBF >> (blank? >> str("?") >> blank? >> assignmentExpression >> space? >> str(":") >> blank? >> assignmentExpression).maybe }
     rule(:assignmentExpression)             { leftHandSideExpression >> blank? >> str("=") >> blank? >> assignmentExpression |
                                             leftHandSideExpression >> blank? >> assignmentOperator >> blank? >> assignmentExpression |
                                             conditionalExpression}
