@@ -8,7 +8,7 @@ class ScriptParser < Parslet::Parser
   root(:script_tag_section)
   rule(:noscript)             { (str("</script>").absent? >> any).repeat(1).maybe }
   rule(:script_tag_section)   { script_tag_open >> noscript.as(:CODE) >> script_tag_close }
-  rule(:script_tag_open)	    { (str('<script') >> blank >> script_attribute? >> str('>')) >> blank }    
+  rule(:script_tag_open)	    { (str('<script').as(:SCR_TAG) >> blank >> script_attribute? >> str('>')) >> blank }    
   rule(:script_attribute?)    { script_attribute.repeat(1).maybe }    
   rule(:script_attribute)     { script_attr_type >> equal >> cuote >> script_attr_value.as(:SCR_VAL) >> cuote >> blank }    #hay que controlar que si se abren comillas simples los valores deben aceptar las comillas dobles y viceversa
   rule(:script_attr_type)     { (str('src').as(:SRC) | str('type').as(:TYPE) | anyattribute) >> blank }   #agregar la regla de atributos personalizados de :attributes    
@@ -35,7 +35,7 @@ end
 class Mini < Parslet::Parser
   #falta reconocer acentos, ñ, ¡, ¿ y demás caracteres especiales
   root(:webpage)              
-  rule(:webpage)              { comment.maybe >> doc_tag >> content }
+  rule(:webpage)              { comment.maybe >> doc_tag.maybe >> content }
     
   rule(:comment_end)          { (str('-->').absent? >> any).repeat(1).maybe >> str('-->') }#{ str('-->') | any >> comment_end }
   rule(:comment)              { str('<!--') >> comment_end  }
@@ -131,35 +131,67 @@ class Transformer < Parslet::Transform
       res
     end
   }
+  #231, 1 busca el resultado después de esta linea
+  rule(:SCR_TAG => simple(:y)){
+    if y
+      res={}
+      res[:JS_POS] = y.line_and_column
+      res
+    end
+  }
+  
+  rule(:SCR_TAG => simple(:y),:CODE => simple(:x)){
+    res={}
+    if x
+      res={}
+      res[:CODE] = x.to_s
+      res[:POS] = x.line_and_column
+    end
+    res[:JS_POS] = y.line_and_column
+    res
+  }
     
   rule(:SCRIPT_EMBEDDED => subtree(:x)) { # WORKS
     if x
       res = {}
       if (x.size) #controla que esta rama tenga elementos
         i=0
+        tag_pos = 0
         no_type = true
+        type_index = 0
         no_src = true
         y=[]
         #A LO QUE SIGUE, que sí funciona, HAY QUE CONTROLAR PRIMERO SI EXISTE EL ATRIBUTO TYPE.
         #SI NO EXISTE, ENTONCES PASA DERECHO Y SÍ SE GUARDA EL CÓDIGO.
         #SI EXISTE, ENTONCES HAY QUE CONTROLAR QUE SEA JAVASCRIPT
         #se comprueba si se trata de una llamada a un source script
-        while ((i<x.size) && no_type && no_src)
+        while ((i<x.size) )
+          if (defined? x[i][:JS_POS].size)
+            tag_pos = i
+          end
           if (defined? x[i][:TYPE].size)
             no_type = false
+            type_index = i
           end
           if (defined? x[i][:SRC].size)
             no_src = false
           end
-          if no_type && no_src
-            i = i + 1
-          end
+          i = i + 1
         end
         if no_src   # si no tiene atributo src significa que no está invocando un archivo .js
+          if x.is_a?(Hash)  # hashes don't need numbered index
+            res[:SCRIPT_EMB] = {:POS => x[:JS_POS], :COMPONENT => "Controller/Model", :TYPE => "Embedded Javascript" }
+          else
+            res[:SCRIPT_EMB] = {:POS => x[tag_pos][:JS_POS], :COMPONENT => "Controller/Model", :TYPE => "Embedded Javascript"}
+          end
+#          x.delete(:JS_POS)
+#          puts "codeht"
+#          pp x
+#          puts "endht"
           if no_type # esta rama no tiene el atributo TYPE especificado, entonces por defecto es JS
             y = x.select{|equis| !equis.nil?}
           else    #esta rama tiene especificado el atributo TYPE, entonces se debe controlar si es o no JS
-            if (x[i][:SCR_VAL].to_s == "text/javascript")
+            if (x[type_index][:SCR_VAL].to_s == "text/javascript")
               y = x.select{|equis| !equis.nil?}
             end
           end
@@ -170,6 +202,9 @@ class Transformer < Parslet::Transform
               while (i<y.size) && !found
                 if (defined? y[i][:CODE].size)
                   found = true
+#                  puts "code found"
+#                  pp y[i]
+#                  puts "by code"
                 else
                   i = i + 1
                 end
@@ -184,7 +219,14 @@ class Transformer < Parslet::Transform
             end
           else    #then it's a hash and it must be directly returned
             res[:JS_CODE]=y
+#            if (defined? res[:JS_CODE][:SCR_TAG].size)
+#              res[:JS_CODE].delete(:SCR_TAG)
+#            end
           end
+          puts "codres"
+          pp res
+          puts "endres"
+#          res[:JS_SCR_POS] = x[:SCR_TAG].line_and_column
         end
       end
       res
