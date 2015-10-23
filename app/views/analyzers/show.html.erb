@@ -1,0 +1,14 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <strong>Directory:</strong>
+  <%= @analyzer.directory %>
+</p>
+
+<p>
+  <strong>Lenguage:</strong>
+  <%= @analyzer.lenguage %>
+</p>
+
+<%= link_to 'Edit', edit_analyzer_path(@analyzer) %> |
+<%= link_to 'Back', analyzers_path %>

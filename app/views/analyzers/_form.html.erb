@@ -1,0 +1,25 @@
+<%= form_for @analyzer do |f| %>
+  <% if @analyzer.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(@analyzer.errors.count, "error") %> prohibited this analyzer from being saved:</h2>
+
+      <ul>
+      <% @analyzer.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="field">
+    <%= f.label :directory %><br>
+    <%= f.file_field :directory, options={:webkitdirectory => "",:directory=>"",:multiple=>"true"} %>
+  </div>
+  <div class="field">
+    <%= f.label :lenguage %><br>
+    <%= f.text_field :lenguage %>
+  </div>
+  <div class="actions">
+    <%= f.submit %>
+  </div>
+<% end %>
