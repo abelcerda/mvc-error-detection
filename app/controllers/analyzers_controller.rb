@@ -25,8 +25,17 @@ class AnalyzersController < ApplicationController
   # POST /analyzers.json
   def create
     @analyzer = Analyzer.new(analyzer_params)
-    puts YAML::dump(@analyzer.directory)
+    #puts YAML::dump(params[:images])
+    if params[:images]
+        #===== The magic is here ;)
+        params[:images].each { |image|
+          puts image.read
+        }
+      end
     abort
+    @scripts = @analyzer.directory.split(",")
+    
+    
 =begin  respond_to do |format|
         if @analyzer.save
           format.html { redirect_to @analyzer, notice: 'Analyzer was successfully created.' }

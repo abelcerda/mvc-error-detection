@@ -14,6 +14,7 @@
   <div class="field">
     <%= f.label :directory %><br>
     <%= f.file_field :directory, options={:webkitdirectory => "",:directory=>"",:multiple=>"true"} %>
+    <%= file_field_tag "images[]", type: :file, multiple: true %>
   </div>
   <div class="field">
     <%= f.label :lenguage %><br>
