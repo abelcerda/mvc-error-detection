@@ -25,11 +25,17 @@ class AnalyzersController < ApplicationController
   # POST /analyzers.json
   def create
     @analyzer = Analyzer.new(analyzer_params)
+    puts "creating"
     #puts YAML::dump(params[:images])
-    if params[:images]
+    if params[:analyzer]
         #===== The magic is here ;)
-        params[:images].each { |image|
+        puts params[:analyzer][:directory]
+        params[:analyzer][:directory].each { |image|
+          puts "ABRIENDO ARCHIVO"
+          puts image.original_filename
+          puts image.content_type
           puts image.read
+          puts "CERRANDO ARCHIVO"
         }
       end
     abort
