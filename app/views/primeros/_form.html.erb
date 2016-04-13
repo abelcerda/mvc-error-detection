@@ -24,44 +24,56 @@
                         <strong><%= notice %></strong>
                       </div>
                     <% end %>
-                   
-                    <!-- form_tag({controller: "people", action: "search"}, method: "get", class: "nifty_form") -->
-                      <div class="form-group">
-                        <label class="col-sm-2 control-label"><%= f.label :archivo %></label>
-                        <div class="col-sm-10">
-                            <%= f.file_field :archivo %>
-                        </div>
+                    <div class="form-group">
+                      <label class="col-sm-2 control-label">Patrón</label>
+                      <div class="col-sm-3">
+                          <select class="form-control m-bot15">
+                            <option>MVC</option>
+                            <option>SINGLETON</option>
+                            <option>FACTORY</option>
+                          </select>
                       </div>
-                      <button type="submit" class="btn btn-primary">Submit</button>
+                    </div>
+                    <div class="form-group">
+                      <label class="col-sm-2 control-label"><%= f.label :archivo %></label>
+                      <div class="col-sm-10">
+                          <%#= f.file_field :archivo %>
+                          <div class="field">
+                            <!-- <%#= f.file_field :directory, options={:webkitdirectory => "",:directory=>"",:multiple=>"true"} %> -->
+                            <%= file_field_tag "scripts[]", type: :file, multiple: true, webkitdirectory: "" %>
+                          </div>
+                      </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Submit</button>
               </div>
           </section>
       </div>
   </div>
 <%if !@leaves.nil?%>
-<div class="row">
-      <div class="col-lg-12">
-          <section class="panel">
-              <header class="panel-heading">
-                 Resultados del Analisis
-              </header>
-              <div class="panel-body">
-                <% @leaves.each do |leave| %>
-                  <% leave.select { |key, value| @ky = key; @val = value } %>
-                  <%if $elementsOfController.include?(@ky.to_s) %>
-                    <blockquote>
-                      <p><%= @val[0] %>.&nbsp;&nbsp;&nbsp;<%= @rows[(@val[0].to_i - 1)] %></p>
-                      <footer>En esta linea hay un operacion que corresponde a un <b>CONTROLADOR</b></footer>
-                    </blockquote>
-                  <% elsif $elementsOfModel.include?(@ky.to_s) %>
-                    <blockquote>
-                      <p><%= @val[0] %>.&nbsp;&nbsp;&nbsp;<%= @rows[(@val[0].to_i - 1)] %></p>
-                      <footer>En esta linea hay un operacion que corresponde a un <b>MODELO</b></footer>
-                    </blockquote>
+  <div class="row">
+        <div class="col-lg-12">
+            <section class="panel">
+                <header class="panel-heading">
+                   Resultados del Analisis
+                </header>
+                <div class="panel-body">
+                  <% @leaves.each do |leave| %>
+                    <% leave.select { |key, value| @ky = key; @val = value } %>
+                    <%if $elementsOfController.include?(@ky.to_s) %>
+                      <blockquote>
+                        <p><%= @val[0] %>.&nbsp;&nbsp;&nbsp;<%= @rows[(@val[0].to_i - 1)] %></p>
+                        <footer>En esta linea hay un operacion que corresponde a un <b>CONTROLADOR</b></footer>
+                      </blockquote>
+                    <% elsif $elementsOfModel.include?(@ky.to_s) %>
+                      <blockquote>
+                        <p><%= @val[0] %>.&nbsp;&nbsp;&nbsp;<%= @rows[(@val[0].to_i - 1)] %></p>
+                        <footer>En esta linea hay un operacion que corresponde a un <b>MODELO</b></footer>
+                      </blockquote>
+                    <% end %>
                   <% end %>
-                <% end %>
-              </div>
-          </section
->      </div>
+                </div>
+            </section>
+        </div>
   </div>
 <%end%>
 <% end %>

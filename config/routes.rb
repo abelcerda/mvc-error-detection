@@ -1,4 +1,6 @@
 Rails.application.routes.draw do
+  resources :analyzers
+
   resources :primeros do
     collection do
       get 'new_html'

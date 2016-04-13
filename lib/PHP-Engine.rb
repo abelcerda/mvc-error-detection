@@ -5,6 +5,9 @@ class PHPCodeAnalyzer
 
   def runPHP(stack,offset)
     @leaves = []
+    stk_analyzed = PhpTransformer.new.apply(PhpLexer.new.parse(stack))
+    pp stk_analyzed
+    exit
     stack.each_with_index do |stk,index|
       stk_analyzed = PhpTransformer.new.apply(PhpLexer.new.parse(stk))
       @leaves = self.analizer_sections(stk_analyzed,@leaves,offset[index]) # Envio el offset para que sea suamdo a cada fila de las hojas ue corresponden con los tokens
@@ -37,7 +40,9 @@ class PHPCodeAnalyzer
           leaves,@val = self.get_arrays(@val,leaves,offset)# Recorro el hash atraves de sus hijos.
           if @val.is_a?(Array)
             @val.each do |vl|
-              data.push(vl)
+              if vl.is_a?(Hash)
+                data.push(vl)
+              end
             end
           end
         end
