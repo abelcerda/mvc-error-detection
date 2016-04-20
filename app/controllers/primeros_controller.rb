@@ -29,39 +29,39 @@ class PrimerosController < ApplicationController
   # POST /primeros.json
   def create
     @primero = Primero.new
-    @leaves = []
+    @files = []
     @rows = []
-    @file = params[:primero][:archivo].read.downcase
-    @ex_file = params[:primero][:archivo].content_type.split("/") # Seobtiene el MIME type del archivo. En la posición 2 esta contenido el subtipo que nos va a interasar.
-    case @ex_file[1] 
-      when "html"
-        puts "Correr el analizador de HTML y Javascript"
-        redirect_to :back
-      when "x-php" #Se corre el analizador de PHP
-        if @file.length != 0
-          @leaves = MvcPhp.new.getSections(@file)
-          puts @leaves
-          #Controlar el tema de mas de un token en la misma linea.
-          lines = params[:primero][:archivo].open()
-          lines.each_with_index do |line,index|
-            @rows.push(line)
+
+    #@analyzer = Primero.new(analyzer_params)
+    #puts YAML::dump(params[:primero][:scripts])
+    #puts YAML::dump(params[:images])
+    if params[:primero][:scripts]
+
+        params[:primero][:scripts].each { |script|
+          #@fichero = script.read
+          ex_file = script.content_type.split("/")
+          file = script.read
+          file_name = script.original_filename
+          #puts ex_file[1]
+          #puts file
+          if (ex_file[1] == "x-php") || (ex_file[1] == "html")
+            sections = MvcPhp.new.getSections(file.downcase)
+            sections.push({"file_name" => file_name})
+            @files.push(sections)
+          else
+            flash[:notice] = 'El archivo que se ha ingresado esta vacio.'
+            redirect_to :back
           end
-          respond_to do |format|
-            if @leaves.nil?
-              format.html { redirect_to @primero, notice: 'Primero was successfully created.' }
-              format.json { render :show, status: :created, location: @primero }
-            else
-              format.html { render :new }
-              format.json { render json: @primero.errors, status: :unprocessable_entity }
-            end
-          end
-        else
-          flash[:notice] = 'El archivo que se ha ingresado esta vacio.'
-          redirect_to :back
-        end
+        }
+    end
+    respond_to do |format|
+      if @files.nil?
+        format.html { redirect_to @primero, notice: 'Se ha analizado ocn exito todos sus archivos' }
+        format.json { render :show, status: :created, location: @primero }
       else
-        flash[:notice] = 'La extension del archivo que se ha ingresado no corresponde con ningun lenguaje soportado hasta el momento.'
-        redirect_to :back
+        format.html { render :new }
+        format.json { render json: @primero.errors, status: :unprocessable_entity }
+      end
     end
   end
 

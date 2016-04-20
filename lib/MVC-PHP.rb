@@ -23,11 +23,12 @@ class MvcPhp
         cod.select { |key, value| @key = key; @script = value }
         if @key.to_s == "PHP_SECTION" 
             @script.each_with_index do |line,index|
-            stack_php = self.search_hashes(stack_php,line)
+                stack_php = self.search_hashes(stack_php,line)
+            end
         end
-        hash = { "offset_section" => optimus_script[index], "stack_php" => stack_php }
+        hash = { "offset_section" => optimus_script[index], "stack_php" => stack_php}
         sections_php.push(hash)
-        elsif @key.to_s == "HTML_SECTION"
+        if @key.to_s == "HTML_SECTION"
             aux = @script.to_s.split("@")
             stack_html[k] = aux[0]
             k = k + 1
@@ -45,6 +46,11 @@ class MvcPhp
         end
     else
         if array_list.is_a?(Hash)
+            #Agregar una llave la hash ara que contenga la linea de codigo en cuestion.
+            #puts "-------------- En busca de la linea de codigo --------------"
+            #puts array_list
+            #array_list.select { |key, value| @llave = key; @line = value }
+            #puts @line[:GET]
             stack_php.push(array_list)
         end
     end

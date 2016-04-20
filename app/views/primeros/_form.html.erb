@@ -39,8 +39,9 @@
                       <div class="col-sm-10">
                           <%#= f.file_field :archivo %>
                           <div class="field">
-                            <!-- <%#= f.file_field :directory, options={:webkitdirectory => "",:directory=>"",:multiple=>"true"} %> -->
-                            <%= file_field_tag "scripts[]", type: :file, multiple: true, webkitdirectory: "" %>
+                             <%= f.file_field :scripts, options={:webkitdirectory => "",:directory=>"",:multiple=>"true"} %>
+                            <%#= file_field_tag "scripts[]", type: :file, multiple: true, webkitdirectory: "" %>
+
                           </div>
                       </div>
                     </div>
