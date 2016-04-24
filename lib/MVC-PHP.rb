@@ -3,9 +3,8 @@ require_relative 'PHPCodeAnalyzer'
 
 class MvcPhp
   @leaves = []
-  @rows = []
 
-  def getSections(code)
+  def getSections(code,linesCode,file_name)
     sections_script = ScriptLexer.new.parse(code)
     optimus_script = Transformio.new.apply(sections_script)
    
@@ -22,11 +21,11 @@ class MvcPhp
         stack_php = []
         cod.select { |key, value| @key = key; @script = value }
         if @key.to_s == "PHP_SECTION" 
-            @script.each_with_index do |line,index|
-                stack_php = self.search_hashes(stack_php,line)
+            @script.each do |line|
+                stack_php = self.search_hashes(stack_php,line,linesCode,optimus_script[index])
             end
         end
-        hash = { "offset_section" => optimus_script[index], "stack_php" => stack_php}
+        hash = { "offset_section" => optimus_script[index], "stack_php" => stack_php,"file_name" => file_name}
         sections_php.push(hash)
         if @key.to_s == "HTML_SECTION"
             aux = @script.to_s.split("@")
@@ -39,19 +38,15 @@ class MvcPhp
     return sections_php
   end
 
-  def search_hashes(stack_php,array_list)
+  def search_hashes(stack_php,array_list,script,offset_section)
     if array_list.is_a?(Array)
         array_list.each do |array_aux|
-            self.search_hashes(stack_php,array_aux)
+            self.search_hashes(stack_php,array_aux,script,offset_section)
         end
     else
         if array_list.is_a?(Hash)
-            #Agregar una llave la hash ara que contenga la linea de codigo en cuestion.
-            #puts "-------------- En busca de la linea de codigo --------------"
-            #puts array_list
-            #array_list.select { |key, value| @llave = key; @line = value }
-            #puts @line[:GET]
-            stack_php.push(array_list)
+            array_list.select { |key, value| @llave = key; @valor = value }
+            stack_php.push({"token" => array_list, "line_cod" => script[@valor[0].to_i - 1]})
         end
     end
     return stack_php

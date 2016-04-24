@@ -42,18 +42,23 @@ class PrimerosController < ApplicationController
           ex_file = script.content_type.split("/")
           file = script.read
           file_name = script.original_filename
+          script = script.open()
+          script.each do | lines |
+            @rows.push(lines)
+          end
           #puts ex_file[1]
           #puts file
           if (ex_file[1] == "x-php") || (ex_file[1] == "html")
-            sections = MvcPhp.new.getSections(file.downcase)
-            sections.push({"file_name" => file_name})
+            sections = MvcPhp.new.getSections(file.downcase,@rows,file_name)
             @files.push(sections)
           else
             flash[:notice] = 'El archivo que se ha ingresado esta vacio.'
             redirect_to :back
           end
+          @rows = []
         }
     end
+    puts @files
     respond_to do |format|
       if @files.nil?
         format.html { redirect_to @primero, notice: 'Se ha analizado ocn exito todos sus archivos' }
