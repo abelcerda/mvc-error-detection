@@ -14,6 +14,7 @@ class PrimerosController < ApplicationController
   # GET /primeros/1
   # GET /primeros/1.json
   def show
+    
   end 
 
   # GET /primeros/new
@@ -58,16 +59,20 @@ class PrimerosController < ApplicationController
           @rows = []
         }
     end
-    puts @files
+    $lexical_analyzer = @files
     respond_to do |format|
       if @files.nil?
         format.html { redirect_to @primero, notice: 'Se ha analizado ocn exito todos sus archivos' }
-        format.json { render :show, status: :created, location: @primero }
+        format.json { render :new, status: :created, location: @primero }
       else
-        format.html { render :new }
+        format.html { render :show }
         format.json { render json: @primero.errors, status: :unprocessable_entity }
       end
     end
+  end
+
+  def show_result
+    
   end
 
   # PATCH/PUT /primeros/1
@@ -97,7 +102,7 @@ class PrimerosController < ApplicationController
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_primero
-      @primero = Primero.find(params[:id])
+      #@primero = Primero.find(params[:id])
     end
 
     # Never trust parameters from the scary internet, only allow the white list through.

@@ -1,0 +1,9 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  directory: MyString
+  lenguage: MyString
+
+two:
+  directory: MyString
+  lenguage: MyString

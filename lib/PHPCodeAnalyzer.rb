@@ -421,11 +421,7 @@ class PhpTransformer < Parslet::Transform
     }
     #----------------- FUNCTIONS ---------------------
     rule(:FUNCTION => subtree(:x)) {
-        if x.is_a?(Hash)
-            x
-        else
-            ''
-        end
+        x
     }
 
     #----------------- Try Catch ---------------------

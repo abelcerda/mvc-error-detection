@@ -1,14 +1,40 @@
-<p id="notice"><%= notice %></p>
-
-<p>
-  <strong>Cadena:</strong>
-  <%= @primero.cadena %>
-</p>
-
-<p>
-  <strong>Resultado:</strong>
-  <%= @primero.resultado %>
-</p>
-
-<%= link_to 'Edit', edit_primero_path(@primero) %> |
-<%= link_to 'Back', primeros_path %>
+<div class="row">	
+	<div class="col-lg-12">
+        <section class="panel">
+            <header class="panel-heading">
+                Resutlados
+            </header>
+            <div class="panel-body">
+            	<div class="col-md-12">
+            		<% $lexical_analyzer.each_with_index do |la,index| %>
+	            		<div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+						  	<div class="panel panel-default">
+							    <div class="panel-heading" role="tab" id="heading_<%= index %>">
+							      <h4 class="panel-title">
+							      	<%= la[:file_name] %>
+							        <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapse_<%= index %>" aria-expanded="true" aria-controls="collapseOne">
+							          <!-- titulo del fichero -->
+							          Ver analisis
+							        </a>
+							      </h4>
+							    </div>
+							    <div id="collapse_<%= index %>" class="panel-collapse" role="tabpanel" aria-labelledby="heading_<%= index %>">
+							      <div class="panel-body">
+							        <!-- contenido del analisis -->
+							        <% la[:stack_php].each do |line| %>
+							        	<% line.each do |l| %>
+							        		<div class="col-md-12">
+							        			<code><%=l[:line_code]%></code>
+							        		</div>
+							        	<% end %>
+							    	<% end %>    
+							      </div>
+							    </div>
+						  	</div>
+						</div>
+					<% end %>
+            	</div>		
+            </div>
+        </section>
+    </div>
+</div>

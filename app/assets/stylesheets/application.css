@@ -12,6 +12,8 @@
  *
  *= require_tree 
  *= require_self 
+ *= bootstrap.min
+ *= bootstrap-theme
  *= font-awesome
  *= font-awesome.min
  */
