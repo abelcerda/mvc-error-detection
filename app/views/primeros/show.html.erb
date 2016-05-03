@@ -19,16 +19,26 @@
 							      </h4>
 							    </div>
 							    <div id="collapse_<%= index %>" class="panel-collapse" role="tabpanel" aria-labelledby="heading_<%= index %>">
-							      <div class="panel-body">
-							        <!-- contenido del analisis -->
-							        <% la[:stack_php].each do |line| %>
-							        	<% line.each do |l| %>
-							        		<div class="col-md-12">
-							        			<code><%=l[:line_code]%></code>
-							        		</div>
-							        	<% end %>
-							    	<% end %>    
-							      </div>
+							    	<div class="panel-body">
+							    		<div class="col-md-6">
+							    			<!-- contenido del analisis -->
+									        <% la[:stack_php].each do |line| %>
+									        	<% line.each do |l| %>
+									        		<div class="col-md-12">
+									        			<code><%=l[:line_number]%>.&nbsp;<%=l[:line_code]%></code>
+									        		</div>
+									        		<% if $elementsOfController.include?(l[:token].to_s) %>
+									        			<p>Esta linea deber[ia estar en un: <b>CONTROLADOR</b></p>
+									        		<% elsif $elementsOfModel.include?(l[:token].to_s) %>
+									        			<p>Esta linea deber[ia estar en un: <b>MODELO</b></p>
+									        		<%end%>
+									        	<% end %>
+									    	<% end %>    
+							    		</div>
+							    		<div class="col-md-6">
+							    			<!-- Espacio para le analisis de la chanorancia. --> 
+							    		</div>
+							    	</div>
 							    </div>
 						  	</div>
 						</div>
