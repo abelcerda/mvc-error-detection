@@ -1,4 +1,4 @@
--# encoding: UTF-8 PUTO XD
+# encoding: UTF-8
 require 'parslet'
 require 'pp'
 #require_relative 'lexems'
