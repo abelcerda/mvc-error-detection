@@ -20,7 +20,7 @@ class MvcPhp
     php_sections_transform.each_with_index do |cod,index|
         stack_php = []
         cod.select { |key, value| @key = key; @script = value }
-        if @key.to_s == "PHP_SECTION" 
+        if (@key.to_s == "PHP_SECTION") && (@script.is_a?(Array) || @script.is_a?(Hash))  
             @script.each do |line|
                 stack_php = self.search_hashes(stack_php,line,linesCode,optimus_script[index])
             end
@@ -48,7 +48,7 @@ class MvcPhp
     else
         if array_list.is_a?(Hash)
             array_list.select { |key, value| @llave = key; @valor = value }
-            stack_php.push({:token => @llave, :line_code => script[@valor[0].to_i - 1], :line_number => (@valor[0].to_i - 1) })
+            stack_php.push({:token => @llave, :line_code => script[@valor[0].to_i - 1], :line_number => (@valor[0].to_i) })
         end
     end
     return stack_php

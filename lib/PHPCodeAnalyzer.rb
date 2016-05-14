@@ -107,11 +107,11 @@ class PhpLexer < Parslet::Parser
 #-------------------- Switch ----------------------
     rule(:switch_statement)         {(swt_normal_syntax.as(:SWT_NORMAL_SYNTAX) | swt_alternative_syntax.as(:SWT_ALTERNATIVE_SYNTAX)) >> blank }
     
-    rule(:swt_normal_syntax)        {str("switch") >> blank >> ((str("(") >> blank >> variable >> blank >> str(")"))) >> blank >> str("{") >> blank >> coment.maybe >> blank >>(switch_content | switch_case.as(:CASE_NORMAL)).repeat >> blank >> coment.maybe >> blank >> switch_default.maybe >> blank >> str("}") >> coment.maybe >> blank}
+    rule(:swt_normal_syntax)        {str("switch") >> blank >> ((str("(") >> blank >> variable >> blank >> str(")"))) >> blank >> str("{") >> blank >> coment.maybe >> blank >>(switch_content | switch_case.as(:CASE_NORMAL)).repeat(1) >> blank >> coment.maybe >> blank >> switch_default.maybe >> blank >> str("}") >> coment.maybe >> blank}
     
-    rule(:swt_alternative_syntax)   {(str("switch") >> blank >> (operation | (str("(") >> blank >> variable >> blank >> str(")"))) >> blank >> str(":") >> blank >> coment.as(:COMENT_SWITCH).maybe >> blank >> ((php_close >> blank >> switch_content.repeat(1)) | switch_case.repeat(1)) >> blank >> ((php_open >> str("endswitch;") >> blank >> php_close) | (str("endswitch;") >> blank >> php_close))) >> blank }
+    rule(:swt_alternative_syntax)   {(str("switch") >> blank >> (operation | (str("(") >> blank >> variable >> blank >> str(")"))) >> blank >> str(":") >> blank >> coment.maybe >> blank >> ((php_close >> blank >> switch_content.repeat(1)) | switch_case.repeat(1)) >> blank >> ((php_open >> str("endswitch;") >> blank >> php_close) | (str("endswitch;") >> blank >> php_close))) >> blank }
     
-    rule(:switch_case)              {(str("case") >> blank >> variable >> blank >> str(":") >> blank >> php_code >> blank >> str("break;").maybe) >> blank }
+    rule(:switch_case)              {(str("case") >> blank >> variable >> blank >> str(":") >> blank >> php_code >> blank >> str("break;")) >> blank }
     
     rule(:switch_content)           {(php_open >> blank >> ( switch_case_tphp | switch_case | php_close).repeat(1)) >> blank }
     
@@ -119,7 +119,7 @@ class PhpLexer < Parslet::Parser
     
     rule(:switch_alternative_end_php){ (php_open >> blank >> str("break;")) >> blank }
     
-    rule(:switch_default)           { (str("default") >> blank >> str(":") >> blank >> php_code) >> blank }
+    rule(:switch_default)           { (str("default") >> blank >> str(":") >> blank >> php_code.maybe >> blank >> str("break;")) >> blank }
 #--------------------------------------------------
 
 #---------------------- For -----------------------
@@ -194,7 +194,7 @@ class PhpLexer < Parslet::Parser
 
 
     rule(:one_line_statement){ (namespace | var_assignment.as(:VAR_ASSIG) | global_vars.as(:G_VARS) |
-                            internal_function | require_statement.as(:REQUIRE) | increment_decrement.as(:INC_DEC) | class_atributte |
+                            internal_function | require_statement | increment_decrement.as(:INC_DEC) | class_atributte |
                             printers.as(:PRINT) | return_sentence.as(:RETURN) |
                             continue.as(:CONTINUE) ) >> str(";") >> blank }
 #--------------- DBA statement ------------------
@@ -269,12 +269,12 @@ class PhpLexer < Parslet::Parser
     rule(:continue)                 { str("continue") >> blank >> match("[0-9]").repeat(1).maybe >> blank }
     rule(:var_assignment)           { left_part >> blank >> (string_op | assignment) >> blank >> rigth_part >> coment.maybe >> blank}
     rule(:left_part)                {(internal_function | variable) }
-    rule(:rigth_part)               {(dba_statement.as(:DBA_STATEMENT) | pdo_statement.as(:PDO_STATEMENT) | operation.as(:OPERATION) | var_array.as(:ARRAY) | class_instantiation.as(:CLASS_INSTANTIATION) | internal_function |  variable) >> blank }
+    rule(:rigth_part)               {(dba_statement.as(:DBA_STATEMENT) | pdo_statement.as(:PDO_STATEMENT) | operation.as(:OPERATION) | var_array.as(:ARRAY) | class_instantiation.as(:CLASS_INSTANTIATION) | internal_function |  variable.as(:VARIABLES)) >> blank }
 
     rule(:end_of_statement)         { (str("endif") | str("endwhile") | str("endforeach") | str("endswitch") | str("endfor")) >> blank }
     rule(:expresions)               {(((str("(").repeat.maybe >> blank >> (internal_function | array_one_position | param_class | variable) >> blank >> str(")").repeat.maybe >> blank >> operators >> blank).repeat.maybe >> blank >> str("(").repeat.maybe >> blank >> (internal_function | array_one_position | param_class | variable) >> blank >> str(")").repeat) | (((internal_function | array_one_position | param_class |variable) >> blank >> operators).repeat(1) >> blank >> (internal_function | array_one_position | param_class |variable))) >> blank }
 
-    rule(:variable)                 { ( class_atributte | cadenas | array_one_position | internal_function | parent_string | simple_string | negative_decimal_numbers) >> blank }
+    rule(:variable)                 { ( class_atributte.as(:CLASS_ATTR) | cadenas | array_one_position | internal_function | parent_string | simple_string | negative_decimal_numbers) >> blank }
 
     rule(:class_atributte)          { (array_one_position | simple_string) >> (str("->") >> (pdo_methods.as(:PDO_METHODS) | internal_function | array_one_position | simple_string)).repeat(1) >> blank}
 
@@ -317,7 +317,7 @@ class PhpLexer < Parslet::Parser
 
     rule(:only_argument)            { (str("(") >> blank >> (array_one_position | internal_function | class_atributte | cadenas | variable) >> blank >> str(")")) >> blank }
 
-    rule(:parameters)               {((operation | class_atributte | var_array.as(:ARRAY_PARAM) | internal_function.as(:INT_FUNC_PARAM) | param_class | variable) >> blank >> str(",") >> blank).repeat.maybe >> blank >> (operation | class_atributte | var_array.as(:ARRAY_PARAM) | internal_function | param_class.as(:PrmCL) | variable) >> blank }
+    rule(:parameters)               {((operation | class_atributte | var_array.as(:ARRAY_PARAM) | internal_function.as(:INT_FUNC_PARAM) | param_class | variable) >> blank >> str(",") >> blank).repeat.maybe >> blank >> (operation | class_atributte | var_array.as(:ARRAY_PARAM) | internal_function | param_class.as(:PrmCL) | variable.as(:VARIABLES)) >> blank }
 
     root(:analizer_file)
 end
@@ -325,7 +325,11 @@ end
 class PhpTransformer < Parslet::Transform
     $elementsToAnalizer = ["PDO_METHODS","PDO_STATEMENT","GET","POST","DBA_STATEMENT"]
     #los patterns de las rule deben contener todos los elementos (:elemento) del mismo nivel de jerarquía, de lo contrario no funcionará
+    
     rule(:CONTROL_STRUCTURE => subtree(:x)) {
+        x
+    }
+    rule(:CLASS_INSTANTIATION => subtree(:x)){
         x
     }
     #---------------- CASE -----------------
@@ -479,12 +483,26 @@ class PhpTransformer < Parslet::Transform
         end
     }
     rule(:VAR_ASSIG => subtree(:x)) {
-        if x.is_a?(Hash)
+        x
+    }
+    rule(:VARIABLES => subtree(:x)){
+        x
+    }
+    #rule(:CLASS_ATTR => subtree(:x)){
+    #    x
+    #}
+=begin
+    rule(:VAR_ASSIG => subtree(:x)) {
+        x
+
+        if x.is_a?(Hash) || x.is_a?(Array)
             x
         else
             ''#Buscar la forma de eliminar este elemento del array.
         end
     }
+=end
+
     rule(:ARRAY_PARAM => subtree(:x)) {
         if x.is_a?(Hash)
             x
@@ -522,6 +540,9 @@ class PhpTransformer < Parslet::Transform
         else
             ''
         end
+    }
+    rule(:G_VARS => subtree(:x)){
+        x
     }
 
     rule(:PDO_METHODS => simple(:x)) {
@@ -564,7 +585,7 @@ def parse(str)
 rescue Parslet::ParseFailed => failure
   puts failure.cause.ascii_tree
 end
-=begin
+
 cadena = "if($pepe){
     $moni = 'no hace nada';
 }elseif{
@@ -576,11 +597,10 @@ cadena = "if($pepe){
 string = "$fields[$field->name] = $field->value;
         $response->response = '[accepted]';"
 #archivo = File.read('/home/clifford/Documentos/archivos_prueba/scriptphp/Controller/controller.php')
-archivo = File.read('/home/clifford/Documentos/archivos_prueba/php_aux.php')
+archivo = File.read('/home/clifford/Documentos/archivos_prueba/ejemplos-de-php/gramajo_FIN/controllers/controller.php')
 #puts archivo.downcase
 id = parse archivo.downcase
 puts id
 puts"*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*"
 optimus = PhpTransformer.new.apply(id)
 pp optimus
-=end
