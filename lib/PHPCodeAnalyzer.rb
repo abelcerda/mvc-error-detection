@@ -269,12 +269,12 @@ class PhpLexer < Parslet::Parser
     rule(:continue)                 { str("continue") >> blank >> match("[0-9]").repeat(1).maybe >> blank }
     rule(:var_assignment)           { left_part >> blank >> (string_op | assignment) >> blank >> rigth_part >> coment.maybe >> blank}
     rule(:left_part)                {(internal_function | variable) }
-    rule(:rigth_part)               {(dba_statement.as(:DBA_STATEMENT) | pdo_statement.as(:PDO_STATEMENT) | operation.as(:OPERATION) | var_array.as(:ARRAY) | class_instantiation.as(:CLASS_INSTANTIATION) | internal_function |  variable.as(:VARIABLES)) >> blank }
+    rule(:rigth_part)               {(dba_statement.as(:DBA_STATEMENT) | pdo_statement.as(:PDO_STATEMENT) | operation.as(:OPERATION) | var_array.as(:ARRAY) | class_instantiation.as(:CLASS_INSTANTIATION) | internal_function |  variable) >> blank }
 
     rule(:end_of_statement)         { (str("endif") | str("endwhile") | str("endforeach") | str("endswitch") | str("endfor")) >> blank }
     rule(:expresions)               {(((str("(").repeat.maybe >> blank >> (internal_function | array_one_position | param_class | variable) >> blank >> str(")").repeat.maybe >> blank >> operators >> blank).repeat.maybe >> blank >> str("(").repeat.maybe >> blank >> (internal_function | array_one_position | param_class | variable) >> blank >> str(")").repeat) | (((internal_function | array_one_position | param_class |variable) >> blank >> operators).repeat(1) >> blank >> (internal_function | array_one_position | param_class |variable))) >> blank }
 
-    rule(:variable)                 { ( class_atributte.as(:CLASS_ATTR) | cadenas | array_one_position | internal_function | parent_string | simple_string | negative_decimal_numbers) >> blank }
+    rule(:variable)                 { ( class_atributte | cadenas | array_one_position | internal_function | parent_string | simple_string | negative_decimal_numbers) >> blank }
 
     rule(:class_atributte)          { (array_one_position | simple_string) >> (str("->") >> (pdo_methods.as(:PDO_METHODS) | internal_function | array_one_position | simple_string)).repeat(1) >> blank}
 
@@ -317,7 +317,7 @@ class PhpLexer < Parslet::Parser
 
     rule(:only_argument)            { (str("(") >> blank >> (array_one_position | internal_function | class_atributte | cadenas | variable) >> blank >> str(")")) >> blank }
 
-    rule(:parameters)               {((operation | class_atributte | var_array.as(:ARRAY_PARAM) | internal_function.as(:INT_FUNC_PARAM) | param_class | variable) >> blank >> str(",") >> blank).repeat.maybe >> blank >> (operation | class_atributte | var_array.as(:ARRAY_PARAM) | internal_function | param_class.as(:PrmCL) | variable.as(:VARIABLES)) >> blank }
+    rule(:parameters)               {((operation | class_atributte | var_array.as(:ARRAY_PARAM) | internal_function.as(:INT_FUNC_PARAM) | param_class | variable) >> blank >> str(",") >> blank).repeat.maybe >> blank >> (operation | class_atributte | var_array.as(:ARRAY_PARAM) | internal_function | param_class.as(:PrmCL) | variable) >> blank }
 
     root(:analizer_file)
 end
@@ -460,6 +460,7 @@ class PhpTransformer < Parslet::Transform
     rule(:ARRAY_MULTIPLE_POSITIONS => subtree(:x)) {
         x
     }
+
     rule(:ARRAY_ONE_POSITION => subtree(:x)) {
         if x.is_a?(Hash)
             x
@@ -467,27 +468,25 @@ class PhpTransformer < Parslet::Transform
             ''
         end
     }
+
     rule(:ASOC_ARRAY => subtree(:x)) {
         x
     }
     rule(:SIMPLE_ARRAY => subtree(:x)) {
         x
     } 
-
-
     rule(:ONE_LINE_STATEMENT => subtree(:x)) {
-        if x.is_a?(Hash)
+        if x.is_a?(Hash) || x.is_a?(Array)
             x
         else
-            ''#Buscar la forma de eliminar este elemento del array.
+            ''
         end
     }
     rule(:VAR_ASSIG => subtree(:x)) {
         x
     }
-    rule(:VARIABLES => subtree(:x)){
-        x
-    }
+    
+    
     #rule(:CLASS_ATTR => subtree(:x)){
     #    x
     #}
@@ -513,6 +512,7 @@ class PhpTransformer < Parslet::Transform
     rule(:ARRAY => subtree(:x)) {
         x
     }
+
     rule(:PRINT => subtree(:x)) {
         if x.is_a?(Hash)
             x
@@ -585,7 +585,7 @@ def parse(str)
 rescue Parslet::ParseFailed => failure
   puts failure.cause.ascii_tree
 end
-
+=begin
 cadena = "if($pepe){
     $moni = 'no hace nada';
 }elseif{
@@ -597,10 +597,11 @@ cadena = "if($pepe){
 string = "$fields[$field->name] = $field->value;
         $response->response = '[accepted]';"
 #archivo = File.read('/home/clifford/Documentos/archivos_prueba/scriptphp/Controller/controller.php')
-archivo = File.read('/home/clifford/Documentos/archivos_prueba/ejemplos-de-php/gramajo_FIN/controllers/controller.php')
+archivo = File.read('/home/clifford/Documentos/archivos_prueba/DirPrueba/scriptB.php')
 #puts archivo.downcase
 id = parse archivo.downcase
 puts id
 puts"*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*"
 optimus = PhpTransformer.new.apply(id)
 pp optimus
+=end
