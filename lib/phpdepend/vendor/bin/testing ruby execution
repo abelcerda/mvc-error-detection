@@ -1,0 +1,21 @@
+
+ def escape_characters_in_string(string)
+    pattern = /(\'|\"|\.|\*|\/|\-|\\ )/
+    string.gsub(pattern){|match|"\\"  + match} # <-- Trying to take the currently found match and add a \ before it I have no idea how to do that).
+  end
+
+comando = 'php pdepend \-\-summary\-xml=\/tmp\/sum.xml \/media\/abel\/Datos\/Programming\/PHP\/Curso\\ PHP\\ Ctrl+F/gramajo/'	#'php pdepend --summary-xml=/tmp/sum.xml /media/abel/Datos/Programming/PHP/Curso PHP Ctrl+F/gramajo/'
+
+#comando = escape_characters_in_string(comando) 
+p comando
+#exit
+#php pdepend \-\-summary\-xml=\/tmp\/sum.xml \/media\/abel\/Datos\/Programming\/PHP\/Curso\\ PHP\\ Ctrl+F/gramajo/
+# la función de arriba no está haciendo funcionar la ejecución system de abajo porque hay un problema con la parte de Curso\ PHP. La solución más simple es impedir que los directorios tengan espacios en blanco en los nombres. Para esto habría que verificar la lista de nombres de los archivos y carpetas que se subieron y borrarles los espacios en blanco o reemplazarlos con guiones bajos, pero en caso que haya un archivo "de esta forma.php" y "de_esta_forma.php" en una misma carpeta podría haber conflicto. la otra opción es mejorar la expresión regular de arriba para que escape mejor los posibles nombres de directorios y archivos.
+
+
+def ejecutar(c)
+system(c)
+puts 'terminado?'
+puts `ls /tmp`
+end
+ejecutar(comando)

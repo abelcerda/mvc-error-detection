@@ -1,0 +1,6 @@
+{
+    "require": {
+
+        "pdepend/pdepend" : "@stable"
+    }
+}
