@@ -12,101 +12,109 @@ class PrimerosController < ApplicationController
     @primeros = Primero.all
   end
 
-  # GET /primeros/1
-  # GET /primeros/1.json
-  def show
-    
-  end 
+	# GET /primeros/1
+	# GET /primeros/1.json
+	def show
+		
+	end 
 
-  # GET /primeros/new
-  def new
-    @primero = Primero.new
-  end
+	# GET /primeros/new
+	def new
+		@primero = Primero.new
+	end
 
-  # GET /primeros/1/edit
-  def edit
-  end
+	# GET /primeros/1/edit
+	def edit
+	end
 
-  # POST /primeros
-  # POST /primeros.json
-  def create
-    @primero = Primero.new
-    @files = []
-    @rows = []
+	# POST /primeros
+	# POST /primeros.json
+	def create
+		@primero = Primero.new
+		@files = []
+		@rows = []
     @metrics = []
-    #@analyzer = Primero.new(analyzer_params)
-    #puts YAML::dump(params[:primero][:scripts])
-    #puts YAML::dump(params[:images])
-    if params[:primero][:scripts]
-
-        params[:primero][:scripts].each { |script|
-          #@fichero = script.read
-          ex_file = script.content_type.split("/")
-          file = script.read
-          file_path = script.tempfile.path
-          file_name = script.original_filename
-          script = script.open()
-          script.each do | lines |
-            @rows.push(lines)
-          end
-          #puts ex_file[1]
-          #puts file
-          if (ex_file[1] == "x-php")
-            @metrics_analyzer = MetricsAnalyzer.new
-            @metrics.push(@metrics_analyzer.analyze_metrics(file_path))
-          end
-          if (ex_file[1] == "x-php") || (ex_file[1] == "html")
-            sections = MvcPhp.new.getSections(file.downcase,@rows,file_name)
-            @files.push(sections)
-          else
-            #DUDA: que pasa si redirige con esta acción pero en medio en un each?. Según rails, redirect ni render terminan la acción actual (create) por lo que no terminaría el each.
-            flash[:notice] = 'El archivo que se ha ingresado esta vacio.'
-            redirect_to :back
-          end
-          @rows = []
-        }
-    end
+		#@analyzer = Primero.new(analyzer_params)
+		#puts YAML::dump(params[:primero][:scripts])
+		#puts YAML::dump(params[:images])
+		#Realizar un try catch pra la lectura de los archivos temporales.
+		if params[:primero][:scripts]
+				 
+					params[:primero][:scripts].each { |script|
+						#@fichero = script.read  
+							ex_file = script.content_type.split("/")
+							puts "***************"
+							puts ex_file
+							file = script.read
+							file_name = script.original_filename
+							script = script.open()
+							script.each do | lines |
+								@rows.push(lines)
+							end
+							#puts ex_file[1]
+							#puts file
+              if (ex_file[1] == "x-php")
+                @metrics_analyzer = MetricsAnalyzer.new
+                @metrics.push(@metrics_analyzer.analyze_metrics(file_path))
+              end
+							if (ex_file[1] == "x-php") || (ex_file[1] == "html")
+								puts "Entrando a la parte donde se la extesión del archivo."
+								puts file_name
+								begin
+									sections = MvcPhp.new.getSections(file.downcase,@rows,file_name)
+									@files.push(sections)
+								rescue
+									puts "se ha producido una excepcion."
+								end
+							else
+								if ex_file[1] == "x-trash"
+									flash[:notice] = 'El archivo #{file_name} que se ingresado se encuentra abierto y se esta editando.'
+								end
+							end
+							@rows = []
+					}
+		end
     @metrics.flatten(1)
-    $lexical_analyzer = @files
-    respond_to do |format|
-      if @files.nil?
-        format.html { redirect_to @primero, notice: 'Se ha analizado ocn exito todos sus archivos' }
-        format.json { render :new, status: :created, location: @primero }
-      else
-        format.html { render :show }
-        format.json { render json: @primero.errors, status: :unprocessable_entity }
-      end
-    end
-  end
+		$lexical_analyzer = @files
+		respond_to do |format|
+			if @files.nil?
+				format.html { redirect_to @primero, notice: 'Se ha analizado ocn exito todos sus archivos' }
+				format.json { render :new, status: :created, location: @primero }
+			else
+				format.html { render :show }
+				format.json { render json: @primero.errors, status: :unprocessable_entity }
+			end
+		end
+	end
 
-  def show_result
-    
-  end
+	def show_result
+		
+	end
 
-  # PATCH/PUT /primeros/1
-  # PATCH/PUT /primeros/1.json
-  def update
-    respond_to do |format|
-      if @primero.update(primero_params)
-        format.html { redirect_to @primero, notice: 'Primero was successfully updated.' }
-        format.json { render :show, status: :ok, location: @primero }
-      else
-        format.html { render :edit }
-        format.json { render json: @primero.errors, status: :unprocessable_entity }
-      end
-    end
-  end
+	# PATCH/PUT /primeros/1
+	# PATCH/PUT /primeros/1.json
+	def update
+		respond_to do |format|
+			if @primero.update(primero_params)
+				format.html { redirect_to @primero, notice: 'Primero was successfully updated.' }
+				format.json { render :show, status: :ok, location: @primero }
+			else
+				format.html { render :edit }
+				format.json { render json: @primero.errors, status: :unprocessable_entity }
+			end
+		end
+	end
 
-  # DELETE /primeros/1
-  # DELETE /primeros/1.json
-  def destroy
-    @primero.destroy
-    respond_to do |format|
-      format.html { redirect_to primeros_url, notice: 'Primero was successfully destroyed.' }
-      format.json { head :no_content }
-    end
-  end
-  
+	# DELETE /primeros/1
+	# DELETE /primeros/1.json
+	def destroy
+		@primero.destroy
+		respond_to do |format|
+			format.html { redirect_to primeros_url, notice: 'Primero was successfully destroyed.' }
+			format.json { head :no_content }
+		end
+	end
+
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_primero

@@ -107,11 +107,11 @@ class PhpLexer < Parslet::Parser
 #-------------------- Switch ----------------------
     rule(:switch_statement)         {(swt_normal_syntax.as(:SWT_NORMAL_SYNTAX) | swt_alternative_syntax.as(:SWT_ALTERNATIVE_SYNTAX)) >> blank }
     
-    rule(:swt_normal_syntax)        {str("switch") >> blank >> ((str("(") >> blank >> variable >> blank >> str(")"))) >> blank >> str("{") >> blank >> coment.maybe >> blank >>(switch_content | switch_case.as(:CASE_NORMAL)).repeat >> blank >> coment.maybe >> blank >> switch_default.maybe >> blank >> str("}") >> coment.maybe >> blank}
+    rule(:swt_normal_syntax)        {str("switch") >> blank >> ((str("(") >> blank >> variable >> blank >> str(")"))) >> blank >> str("{") >> blank >> coment.maybe >> blank >>(switch_content | switch_case.as(:CASE_NORMAL)).repeat(1) >> blank >> coment.maybe >> blank >> switch_default.maybe >> blank >> str("}") >> coment.maybe >> blank}
     
-    rule(:swt_alternative_syntax)   {(str("switch") >> blank >> (operation | (str("(") >> blank >> variable >> blank >> str(")"))) >> blank >> str(":") >> blank >> coment.as(:COMENT_SWITCH).maybe >> blank >> ((php_close >> blank >> switch_content.repeat(1)) | switch_case.repeat(1)) >> blank >> ((php_open >> str("endswitch;") >> blank >> php_close) | (str("endswitch;") >> blank >> php_close))) >> blank }
+    rule(:swt_alternative_syntax)   {(str("switch") >> blank >> (operation | (str("(") >> blank >> variable >> blank >> str(")"))) >> blank >> str(":") >> blank >> coment.maybe >> blank >> ((php_close >> blank >> switch_content.repeat(1)) | switch_case.repeat(1)) >> blank >> ((php_open >> str("endswitch;") >> blank >> php_close) | (str("endswitch;") >> blank >> php_close))) >> blank }
     
-    rule(:switch_case)              {(str("case") >> blank >> variable >> blank >> str(":") >> blank >> php_code >> blank >> str("break;").maybe) >> blank }
+    rule(:switch_case)              {(str("case") >> blank >> variable >> blank >> str(":") >> blank >> php_code >> blank >> str("break;")) >> blank }
     
     rule(:switch_content)           {(php_open >> blank >> ( switch_case_tphp | switch_case | php_close).repeat(1)) >> blank }
     
@@ -119,7 +119,7 @@ class PhpLexer < Parslet::Parser
     
     rule(:switch_alternative_end_php){ (php_open >> blank >> str("break;")) >> blank }
     
-    rule(:switch_default)           { (str("default") >> blank >> str(":") >> blank >> php_code) >> blank }
+    rule(:switch_default)           { (str("default") >> blank >> str(":") >> blank >> php_code.maybe >> blank >> str("break;")) >> blank }
 #--------------------------------------------------
 
 #---------------------- For -----------------------
@@ -194,7 +194,7 @@ class PhpLexer < Parslet::Parser
 
 
     rule(:one_line_statement){ (namespace | var_assignment.as(:VAR_ASSIG) | global_vars.as(:G_VARS) |
-                            internal_function | require_statement.as(:REQUIRE) | increment_decrement.as(:INC_DEC) | class_atributte |
+                            internal_function | require_statement | increment_decrement.as(:INC_DEC) | class_atributte |
                             printers.as(:PRINT) | return_sentence.as(:RETURN) |
                             continue.as(:CONTINUE) ) >> str(";") >> blank }
 #--------------- DBA statement ------------------
@@ -325,7 +325,11 @@ end
 class PhpTransformer < Parslet::Transform
     $elementsToAnalizer = ["PDO_METHODS","PDO_STATEMENT","GET","POST","DBA_STATEMENT"]
     #los patterns de las rule deben contener todos los elementos (:elemento) del mismo nivel de jerarquía, de lo contrario no funcionará
+    
     rule(:CONTROL_STRUCTURE => subtree(:x)) {
+        x
+    }
+    rule(:CLASS_INSTANTIATION => subtree(:x)){
         x
     }
     #---------------- CASE -----------------
@@ -456,6 +460,7 @@ class PhpTransformer < Parslet::Transform
     rule(:ARRAY_MULTIPLE_POSITIONS => subtree(:x)) {
         x
     }
+
     rule(:ARRAY_ONE_POSITION => subtree(:x)) {
         if x.is_a?(Hash)
             x
@@ -463,28 +468,40 @@ class PhpTransformer < Parslet::Transform
             ''
         end
     }
+
     rule(:ASOC_ARRAY => subtree(:x)) {
         x
     }
     rule(:SIMPLE_ARRAY => subtree(:x)) {
         x
     } 
-
-
     rule(:ONE_LINE_STATEMENT => subtree(:x)) {
-        if x.is_a?(Hash)
+        if x.is_a?(Hash) || x.is_a?(Array)
             x
         else
-            ''#Buscar la forma de eliminar este elemento del array.
+            ''
         end
     }
     rule(:VAR_ASSIG => subtree(:x)) {
-        if x.is_a?(Hash)
+        x
+    }
+    
+    
+    #rule(:CLASS_ATTR => subtree(:x)){
+    #    x
+    #}
+=begin
+    rule(:VAR_ASSIG => subtree(:x)) {
+        x
+
+        if x.is_a?(Hash) || x.is_a?(Array)
             x
         else
             ''#Buscar la forma de eliminar este elemento del array.
         end
     }
+=end
+
     rule(:ARRAY_PARAM => subtree(:x)) {
         if x.is_a?(Hash)
             x
@@ -495,6 +512,7 @@ class PhpTransformer < Parslet::Transform
     rule(:ARRAY => subtree(:x)) {
         x
     }
+
     rule(:PRINT => subtree(:x)) {
         if x.is_a?(Hash)
             x
@@ -522,6 +540,9 @@ class PhpTransformer < Parslet::Transform
         else
             ''
         end
+    }
+    rule(:G_VARS => subtree(:x)){
+        x
     }
 
     rule(:PDO_METHODS => simple(:x)) {
@@ -576,7 +597,7 @@ cadena = "if($pepe){
 string = "$fields[$field->name] = $field->value;
         $response->response = '[accepted]';"
 #archivo = File.read('/home/clifford/Documentos/archivos_prueba/scriptphp/Controller/controller.php')
-archivo = File.read('/home/clifford/Documentos/archivos_prueba/php_aux.php')
+archivo = File.read('/home/clifford/Documentos/archivos_prueba/DirPrueba/scriptB.php')
 #puts archivo.downcase
 id = parse archivo.downcase
 puts id
