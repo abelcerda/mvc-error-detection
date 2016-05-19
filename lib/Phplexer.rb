@@ -438,10 +438,10 @@ cadena = "if($pepe){
 #if ($band){if ($band){$hola = 1}}else{if ($band){$hola = 1}}
 string = "$fields[$field->name] = $field->value;
         $response->response = '[accepted]';"
-archivo = File.read('/home/clifford/Documentos/archivos_prueba/php_test27.php')
+#archivo = File.read('/home/clifford/Documentos/archivos_prueba/php_test27.php')
 #puts archivo.downcase
-id = parse archivo.downcase
-puts id
-puts"*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*"
-optimus = PhpTransformer.new.apply(id)
-pp optimus
+#id = parse archivo.downcase
+#puts id
+#puts"*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*"
+#optimus = PhpTransformer.new.apply(id)
+#pp optimus
