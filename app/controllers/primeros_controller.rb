@@ -54,7 +54,7 @@ class PrimerosController < ApplicationController
 							#puts ex_file[1]
 							#puts file
               if (ex_file[1] == "x-php")
-                @metrics_analyzer = MetricsAnalyzer.new
+                @metrics_analyzer = MetricAnalyzer.new
                 @metrics.push(@metrics_analyzer.analyze_metrics(file_path))
               end
 							if (ex_file[1] == "x-php") || (ex_file[1] == "html")
