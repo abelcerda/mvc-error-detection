@@ -47,6 +47,7 @@ class PrimerosController < ApplicationController
 							puts ex_file
 							file = script.read
 							file_name = script.original_filename
+              file_path = script.tempfile.path
 							script = script.open()
 							script.each do | lines |
 								@rows.push(lines)
