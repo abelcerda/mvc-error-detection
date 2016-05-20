@@ -22,11 +22,15 @@ class PDependRunner
 end
   
 class MetricAnalyzer < XMLAnalyzer
-  def analyze_metrics(source_file)
+  def analyze_metrics(source_file, file_name)
     executer = PDependRunner.new 
     metric_file = executer.execute_pdepend(source_file)
     
     parsed_metrics = parse_xml(metric_file)
+    if !parsed_metrics.empty?
+      parsed_metrics = parsed_metrics[0]  # se selecciona el primer resultado porque los archivos se analizan de a uno
+      parsed_metrics[:file_name] = file_name
+    end
     return parsed_metrics
   end
 end
