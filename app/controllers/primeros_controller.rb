@@ -48,6 +48,7 @@ class PrimerosController < ApplicationController
 							file = script.read
 							file_name = script.original_filename
               file_path = script.tempfile.path
+              file_original_path = find_original_path(script.headers)
 							script = script.open()
 							script.each do | lines |
 								@rows.push(lines)
@@ -55,14 +56,16 @@ class PrimerosController < ApplicationController
 							#puts ex_file[1]
 							#puts file
               if (ex_file[1] == "x-php")
-                @metrics_analyzer = MetricAnalyzer.new
-                @metrics.push(@metrics_analyzer.analyze_metrics(file_path))
+                @analyzed_metrics = MetricAnalyzer.new.analyze_metrics(file_path, file_original_path)
               end
 							if (ex_file[1] == "x-php") || (ex_file[1] == "html")
 								puts "Entrando a la parte donde se la extesión del archivo."
 								puts file_name
 								begin
-									sections = MvcPhp.new.getSections(file.downcase,@rows,file_name)
+									sections = MvcPhp.new.getSections(file.downcase,@rows,file_original_path) #creo que es más preciso indicar la ruta completa por si hay casos donde haya archivos con el mismo nombre pero en distintas subcarpetas del proyecto
+                  (!@analyzed_metrics.nil? && !@analyzed_metrics.empty?)? 
+                    sections[:metrics] = @analyzed_metrics : 
+                    FALSE # generar algún mensaje cuando no hay métricas para ese archivo
 									@files.push(sections)
 								rescue
 									puts "se ha producido una excepcion."
@@ -75,7 +78,6 @@ class PrimerosController < ApplicationController
 							@rows = []
 					}
 		end
-    @metrics.flatten(1)
 		$lexical_analyzer = @files
 		respond_to do |format|
 			if @files.nil?
@@ -132,5 +134,10 @@ class PrimerosController < ApplicationController
       # TO DO: retornar una cadena vacía en caso que la librería no se haya cargado bien 
       metrics = MetricAnalyzer.new.analyze_metrics(file_path)
       return metrics
+    end
+    
+    def find_original_path(headers)
+      filename =  headers.match('filename=[^;\n\r]+').to_s.split('=')
+      return filename[1].to_s.gsub('"', '')
     end
 end
