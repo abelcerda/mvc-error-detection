@@ -1,49 +1,110 @@
+<%
+def fit_metrics_to_tables(metrics)
+  i=0 
+  j = -1
+  max_col=7
+  tables = Array.new
+  metrics.each do |key, value| 
+    if i%max_col == 0
+      j += 1
+      tables[j] = Hash.new
+    end
+    tables[j] = tables[j].merge({key=>value})
+    i += 1
+  end 
+  return tables
+end  
+%>
 <div class="row">	
-	<div class="col-lg-12">
+    <div class="col-lg-12">
         <section class="panel">
             <header class="panel-heading">
-                Resutlados
+                Resultados
             </header>
             <div class="panel-body">
-            	<div class="col-md-12">
-            		<% $lexical_analyzer.each_with_index do |la,index| %>
-	            		<div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
-						  	<div class="panel panel-default">
-							    <div class="panel-heading" role="tab" id="heading_<%= index %>">
-							      <h4 class="panel-title">
-							      	<%= la[:file_name] %>
-							        <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapse_<%= index %>" aria-expanded="true" aria-controls="collapseOne">
-							          <!-- titulo del fichero -->
-							          Ver analisis
-							        </a>
-							      </h4>
-							    </div>
-							    <div id="collapse_<%= index %>" class="panel-collapse" role="tabpanel" aria-labelledby="heading_<%= index %>">
-							    	<div class="panel-body">
-							    		<div class="col-md-6">
-							    			<!-- contenido del analisis -->
-									        <% la[:stack_php].each do |line| %>
-									        	<% line.each do |l| %>
-									        		<div class="col-md-12">
-									        			<code><%=l[:line_number]%>.&nbsp;<%=l[:line_code]%></code>
-									        		</div>
-									        		<% if $elementsOfController.include?(l[:token].to_s) %>
-									        			<p>Esta linea deber[ia estar en un: <b>CONTROLADOR</b></p>
-									        		<% elsif $elementsOfModel.include?(l[:token].to_s) %>
-									        			<p>Esta linea deber[ia estar en un: <b>MODELO</b></p>
-									        		<%end%>
-									        	<% end %>
-									    	<% end %>    
-							    		</div>
-							    		<div class="col-md-6">
-							    			<!-- Espacio para le analisis de la chanorancia. --> 
-							    		</div>
-							    	</div>
-							    </div>
-						  	</div>
-						</div>
-					<% end %>
-            	</div>		
+                <div class="col-md-12">
+                    <% $lexical_analyzer.each_with_index do |la,index| %>
+                      <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+                          <div class="panel panel-default">
+                              <div class="panel-heading" role="tab" id="heading_<%= index %>">
+                                  <h4 class="panel-title">
+                                      <%= la[:file_name] %>
+                                      <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapse_<%= index %>" aria-expanded="true" aria-controls="collapseOne">
+                                          <!-- titulo del fichero -->
+                                          Ver analisis
+                                      </a>
+                                  </h4>
+                              </div>
+                              <div id="collapse_<%= index %>" class="panel-collapse" role="tabpanel" aria-labelledby="heading_<%= index %>">
+                                  <div class="panel-body">
+                                      <div class="col-md-6">
+                                          <!-- contenido del analisis -->
+                                          <% la[:stack_php].each do |line| %>
+                                            <% line.each do |l| %>
+                                              <div class="col-md-12">
+                                                  <code><%=l[:line_number]%>.&nbsp;<%=l[:line_code]%></code>
+                                              </div>
+                                              <% if $elementsOfController.include?(l[:token].to_s) %>
+                                                <p>Esta linea deber[ia estar en un: <b>CONTROLADOR</b></p>
+                                              <% elsif $elementsOfModel.include?(l[:token].to_s) %>
+                                                <p>Esta linea deber[ia estar en un: <b>MODELO</b></p>
+                                              <%end%>
+                                            <% end %>
+                                          <% end %>    
+                                      </div>
+                                      <div class="col-md-6">
+                                          <% if !la[:metrics].nil? && !la[:metrics].empty? %>
+                                            <table class="table table-responsive">
+                                                <thead>
+                                                    <% la[:metrics][:metrics].each_key do |key| %>
+                                                    <th><%=key.upcase%></th>
+                                                    <% end %>
+                                                </thead>
+                                                <tbody>
+                                                    <tr>
+                                                    <% la[:metrics][:metrics].each do |key, metric| %>
+                                                      <td>
+                                                        <%='%.2f' %metric%>
+                                                      </td>
+                                                    <% end %>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                          <h4 class="col-md-12">Clases y funciones en el archivo</h4>
+                                            <% la[:metrics][:content].each do |function_or_class| %>                                                                        
+                                              <div class="col-md-12">
+                                                  <b><%= function_or_class[:type] %>:</b>&nbsp;<%= function_or_class[:name] %>
+                                              </div>
+                                                  <% tables = fit_metrics_to_tables(function_or_class[:metrics])%>
+                                                  <% tables.each do |partial| %>
+                                                      <table class="table table-responsive">
+                                                          <thead>                                                   
+                                                          <% partial.each_key do |key| %>
+                                                              <th><%=key.upcase%></th>
+                                                          <% end %>
+                                                          </thead>
+                                                          <tbody>   
+                                                            <tr>                                                
+                                                            <% partial.each do |key, value| %>
+                                                              <td><%='%.2f' %value%></td>
+                                                            <% end %>
+                                                            </tr>
+                                                          </tbody>
+                                                      </table>
+                                                  <% end %>
+                                                  <% #fin de tables.each %>
+                                            <% end %>
+                                            <% #fin de la[:metrics][:content] %>
+
+                                          <% end %>
+                                          <% #fin de if !la[:metrics].nil? && !la[:metrics].empty? %>
+                                      </div>
+                                  </div>
+                              </div>
+                          </div>
+                      </div>
+                    <% end %>
+                </div>		
             </div>
         </section>
     </div>
