@@ -57,7 +57,13 @@ end
                                             <table class="table table-responsive">
                                                 <thead>
                                                     <% la[:metrics][:metrics].each_key do |key| %>
-                                                    <th><%=key.upcase%></th>
+                                                    <th 
+                                                      <% if !$pdepend_metric_names.nil? %>
+                                                      data-toggle="tooltip" data-container="body" data-placement="left" title="<%= $pdepend_metric_names[key] %>"
+                                                      <% end %>
+                                                    >
+                                                      <%=key.upcase%>
+                                                    </th>
                                                     <% end %>
                                                 </thead>
                                                 <tbody>
@@ -80,7 +86,13 @@ end
                                                       <table class="table table-responsive">
                                                           <thead>                                                   
                                                           <% partial.each_key do |key| %>
-                                                              <th><%=key.upcase%></th>
+                                                              <th 
+                                                                <% if !$pdepend_metric_names.nil? %>
+                                                                data-toggle="tooltip" data-container="body" data-placement="left" title="<%= $pdepend_metric_names[key] %>"
+                                                                <% end %>
+                                                              >
+                                                                <%=key.upcase%>
+                                                              </th>
                                                           <% end %>
                                                           </thead>
                                                           <tbody>   
@@ -109,3 +121,8 @@ end
         </section>
     </div>
 </div>
+<script type="text/javascript">
+  $(function () {
+    $('[data-toggle="tooltip"]').tooltip();
+  });
+</script>

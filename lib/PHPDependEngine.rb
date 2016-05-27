@@ -2,7 +2,48 @@
   require_relative 'XMLCodeAnalyzer'
   $pdepend_command_path = '/home/abel/projects/git/tesis_bitbucket/tesis/lib/phpdepend/vendor/pdepend/pdepend/src/bin/pdepend'
 # TO DO: mejorar la generación de la ruta. Tal vez parte de esa ruta se encuentre en la ruta de la aplicación rails
-
+  $pdepend_metric_names = {
+    'ahh' => 'Average Hierarchy Height',
+    'andc' => 'Average Number of Derived Classes',
+    'ca' => 'Afferent Coupling',
+    'calls' => 'Number of Method or Function Calls',
+    'cbo' => 'Coupling Between Objects',
+    'ccn' => 'Cyclomatic Complexity Number',
+    'ccn2' =>'Extended Cyclomatic Complexity Number',
+    'ce' => 'Efferent Coupling',
+    'cis' => 'Class Interface Size',
+    'cloc' => 'Comment Lines fo Code',
+    'clsa' => 'Number of Abstract Classes',
+    'clsc' => 'Number of Concrete Classes',
+    'cr' =>  'Code Rank',
+    'csz' => 'Class Size',
+    'dit' => 'Depth of Inheritance Tree',
+    'eloc' => 'Executable Lines of Code',
+    'fanout' => 'Number of Fanouts',
+    'leafs' => 'Number of Leaf Classes',
+    'lloc' => 'Logical Lines Of Code',
+    'loc' => 'Lines Of Code',
+    'maxDIT' => 'Max Depth of Inheritance Tree',
+    'noam' => 'Number Of Added Methods',
+    'nocc' => 'Number Of Child Classes',
+    'noom' => 'Number Of Overwritten Methods',
+    'ncloc' => 'Non Comment Lines Of Code',
+    'noc' => 'Number Of Classes',
+    'nof' => 'Number Of Functions',
+    'noi' => 'Number Of Interfaces',
+    'nom' => 'Number Of Methods',
+    'npm' => 'Number of Public Methods',
+    'npath' => 'NPath Complexity',
+    'nop' => 'Number of Packages',
+    'rcr' => 'Reverse Code Rank',
+    'roots' => 'Number of Root Classes',
+    'vars' => 'Properties',
+    'varsi' => 'Inherited Properties',
+    'varsnp' => 'Non Private Properties',
+    'wmc' => 'Weighted Method Count',
+    'wmci' => 'Inherited Weighted Method Count',
+    'wmcnp' => 'Non Private Weighted Method Count'
+  }
 
 #comando = 'php pdepend \-\-summary\-xml=\/tmp\/sum.xml \/media\/abel\/Datos\/Programming\/PHP\/Curso\\ PHP\\ Ctrl+F/gramajo/'	#'php pdepend --summary-xml=/tmp/sum.xml /media/abel/Datos/Programming/PHP/Curso PHP Ctrl+F/gramajo/'
 
@@ -23,9 +64,7 @@ end
   
 class MetricAnalyzer < XMLAnalyzer
   def analyze_metrics(source_file, file_name)
-    executer = PDependRunner.new 
-    metric_file = executer.execute_pdepend(source_file)
-    
+    metric_file = PDependRunner.new.execute_pdepend(source_file)
     parsed_metrics = parse_xml(metric_file)
     if !parsed_metrics.empty?
       parsed_metrics = parsed_metrics[0]  # se selecciona el primer resultado porque los archivos se analizan de a uno
