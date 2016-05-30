@@ -29,13 +29,12 @@ end
                               <div class="panel-heading" role="tab" id="heading_<%= index %>">
                                   <h4 class="panel-title">
                                       <%= la[:file_name] %>
-                                      <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapse_<%= index %>" aria-expanded="true" aria-controls="collapseOne">
-                                          <!-- titulo del fichero -->
-                                          Ver analisis
+                                      <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapse_<%= index %>" aria-expanded="false" aria-controls="collapseOne" class="collapsed">
+                                          <span class="app-toggle-button">Ver análisis</span>
                                       </a>
                                   </h4>
                               </div>
-                              <div id="collapse_<%= index %>" class="panel-collapse" role="tabpanel" aria-labelledby="heading_<%= index %>">
+                              <div id="collapse_<%= index %>" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading_<%= index %>">
                                   <div class="panel-body">
                                       <div class="col-md-6">
                                           <!-- contenido del analisis -->
@@ -52,8 +51,9 @@ end
                                             <% end %>
                                           <% end %>    
                                       </div>
-                                      <div class="col-md-6">
+                                      <div class="col-md-6" id="metrics_column">
                                           <% if !la[:metrics].nil? && !la[:metrics].empty? %>
+                                          <h4 class="col-md-12">Métricas del archivo</h4>
                                             <table class="table table-responsive">
                                                 <thead>
                                                     <% la[:metrics][:metrics].each_key do |key| %>
@@ -80,7 +80,11 @@ end
                                             <% la[:metrics][:content].each do |function_or_class| %>                                                                        
                                               <div class="col-md-12">
                                                   <b><%= function_or_class[:type] %>:</b>&nbsp;<%= function_or_class[:name] %>
+                                                  <a role="button" data-toggle="collapse" data-parent="#metrics_column" href="#collapse_metrics_<%= index %>" aria-expanded="false" aria-controls="collapseOne" class="collapsed">
+                                                      <span class="app-toggle-button">Ver métricas</span>
+                                                  </a>
                                               </div>
+                                              <div id="collapse_metrics_<%= index %>" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading_<%= index %>">
                                                   <% tables = fit_metrics_to_tables(function_or_class[:metrics])%>
                                                   <% tables.each do |partial| %>
                                                       <table class="table table-responsive">
@@ -104,6 +108,7 @@ end
                                                           </tbody>
                                                       </table>
                                                   <% end %>
+                                              </div>
                                                   <% #fin de tables.each %>
                                             <% end %>
                                             <% #fin de la[:metrics][:content] %>
@@ -124,5 +129,13 @@ end
 <script type="text/javascript">
   $(function () {
     $('[data-toggle="tooltip"]').tooltip();
+  });
+  $('.panel-collapse').on('hidden.bs.collapse', function () {
+    var targetTxt = (this.id.indexOf('metric') < 0 )?  'análisis' : 'métricas';
+    $($(this).parent()[0].querySelector('.app-toggle-button')).html('Ver ' + targetTxt);
+  });
+  $('.panel-collapse').on('shown.bs.collapse', function () {
+    var targetTxt = (this.id.indexOf('metric') < 0 )?  'análisis' : 'métricas';
+    $($(this).parent()[0].querySelector('.app-toggle-button')).html('Ocultar ' + targetTxt);
   });
 </script>
