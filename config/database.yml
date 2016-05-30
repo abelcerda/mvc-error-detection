@@ -18,10 +18,10 @@ development:
   host: localhost
   adapter: postgresql
   encoding: UTF8
-  database: tesis_parslet
+  database: tesis
   pool: 5
   username: postgres
-  password: gonza0304
+  password: g0nz4l0
 
 
 

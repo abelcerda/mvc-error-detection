@@ -5,137 +5,154 @@ def fit_metrics_to_tables(metrics)
   max_col=7
   tables = Array.new
   metrics.each do |key, value| 
-    if i%max_col == 0
-      j += 1
-      tables[j] = Hash.new
-    end
-    tables[j] = tables[j].merge({key=>value})
-    i += 1
+	if i%max_col == 0
+	  j += 1
+	  tables[j] = Hash.new
+	end
+	tables[j] = tables[j].merge({key=>value})
+	i += 1
   end 
   return tables
 end  
 %>
 <div class="row">	
-    <div class="col-lg-12">
-        <section class="panel">
-            <header class="panel-heading">
-                Resultados
-            </header>
-            <div class="panel-body">
-                <div class="col-md-12">
-                    <% $lexical_analyzer.each_with_index do |la,index| %>
-                      <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
-                          <div class="panel panel-default">
-                              <div class="panel-heading" role="tab" id="heading_<%= index %>">
-                                  <h4 class="panel-title">
-                                      <%= la[:file_name] %>
-                                      <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapse_<%= index %>" aria-expanded="false" aria-controls="collapseOne" class="collapsed">
-                                          <span class="app-toggle-button">Ver análisis</span>
-                                      </a>
-                                  </h4>
-                              </div>
-                              <div id="collapse_<%= index %>" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading_<%= index %>">
-                                  <div class="panel-body">
-                                      <div class="col-md-6">
-                                          <!-- contenido del analisis -->
-                                          <% la[:stack_php].each do |line| %>
-                                            <% line.each do |l| %>
-                                              <div class="col-md-12">
-                                                  <code><%=l[:line_number]%>.&nbsp;<%=l[:line_code]%></code>
-                                              </div>
-                                              <% if $elementsOfController.include?(l[:token].to_s) %>
-                                                <p>Esta linea deber[ia estar en un: <b>CONTROLADOR</b></p>
-                                              <% elsif $elementsOfModel.include?(l[:token].to_s) %>
-                                                <p>Esta linea deber[ia estar en un: <b>MODELO</b></p>
-                                              <%end%>
-                                            <% end %>
-                                          <% end %>    
-                                      </div>
-                                      <div class="col-md-6" id="metrics_column">
-                                          <% if !la[:metrics].nil? && !la[:metrics].empty? %>
-                                          <h4 class="col-md-12">Métricas del archivo</h4>
-                                            <table class="table table-responsive">
-                                                <thead>
-                                                    <% la[:metrics][:metrics].each_key do |key| %>
-                                                    <th 
-                                                      <% if !$pdepend_metric_names.nil? %>
-                                                      data-toggle="tooltip" data-container="body" data-placement="left" title="<%= $pdepend_metric_names[key] %>"
-                                                      <% end %>
-                                                    >
-                                                      <%=key.upcase%>
-                                                    </th>
-                                                    <% end %>
-                                                </thead>
-                                                <tbody>
-                                                    <tr>
-                                                    <% la[:metrics][:metrics].each do |key, metric| %>
-                                                      <td>
-                                                        <%='%.2f' %metric%>
-                                                      </td>
-                                                    <% end %>
-                                                    </tr>
-                                                </tbody>
-                                            </table>
-                                          <h4 class="col-md-12">Clases y funciones en el archivo</h4>
-                                            <% la[:metrics][:content].each do |function_or_class| %>                                                                        
-                                              <div class="col-md-12">
-                                                  <b><%= function_or_class[:type] %>:</b>&nbsp;<%= function_or_class[:name] %>
-                                                  <a role="button" data-toggle="collapse" data-parent="#metrics_column" href="#collapse_metrics_<%= index %>" aria-expanded="false" aria-controls="collapseOne" class="collapsed">
-                                                      <span class="app-toggle-button">Ver métricas</span>
-                                                  </a>
-                                              </div>
-                                              <div id="collapse_metrics_<%= index %>" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading_<%= index %>">
-                                                  <% tables = fit_metrics_to_tables(function_or_class[:metrics])%>
-                                                  <% tables.each do |partial| %>
-                                                      <table class="table table-responsive">
-                                                          <thead>                                                   
-                                                          <% partial.each_key do |key| %>
-                                                              <th 
-                                                                <% if !$pdepend_metric_names.nil? %>
-                                                                data-toggle="tooltip" data-container="body" data-placement="left" title="<%= $pdepend_metric_names[key] %>"
-                                                                <% end %>
-                                                              >
-                                                                <%=key.upcase%>
-                                                              </th>
-                                                          <% end %>
-                                                          </thead>
-                                                          <tbody>   
-                                                            <tr>                                                
-                                                            <% partial.each do |key, value| %>
-                                                              <td><%='%.2f' %value%></td>
-                                                            <% end %>
-                                                            </tr>
-                                                          </tbody>
-                                                      </table>
-                                                  <% end %>
-                                              </div>
-                                                  <% #fin de tables.each %>
-                                            <% end %>
-                                            <% #fin de la[:metrics][:content] %>
+	<div class="col-lg-12">
+		<section class="panel">
+			<header class="panel-heading">
+				Resultados
+			</header>
+			<div class="panel-body">
+				<div class="col-md-12">
+					<% $lexical_analyzer.each_with_index do |la,index| %>
+					  <div class="panel-group show_results" id="accordion" role="tablist" aria-multiselectable="true">
+						  <div class="panel panel-default">
+						    <div class="panel-heading" role="tab" id="heading_<%= index %>">
+								<h4 class="panel-title">
+									<div class="row">
+										<div class="col-md-6">
+											<%= la[:file_name] %>
+										</div>
+										<div class="col-md-6 text-right">
+											<a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapse_<%= index %>" aria-expanded="false" aria-controls="collapseOne" class="link_collapse">
+												<span class="app-toggle-button">Ver análisis</span>
+											</a>
+										</div>
+									</div>	
+								</h4>
+						    </div>
+							<div id="collapse_<%= index %>" class="panel-collapse collapse collapse_files" role="tabpanel" aria-labelledby="heading_<%= index %>">
+							  <div class="panel-body">
+								  <div class="col-md-6">
+									<!-- contenido del analisis -->
+										<% if la[:stack_php][0] != "empty" %>
+											<% la[:stack_php].each do |line| %>
+												<% line.each do |l| %>
+													<pre><%=l[:line_number]%>.&nbsp;<%=l[:line_code]%></pre>
+													<% if $elementsOfController.include?(l[:token].to_s) %>
+														<p>Esta linea deber[ia estar en un: <b>CONTROLADOR</b></p>
+													<% elsif $elementsOfModel.include?(l[:token].to_s) %>
+														<p>Esta linea deber[ia estar en un: <b>MODELO</b></p>
+													<%end%>
+												<% end %>
+											<% end %>
+										<% else %>
+											<div class="col-md-12">
+												<h4>El archivo no contiene caracteristicas que correspoden con un controlador o modelo.</h4>
+											</div>
+										<% end %>
+								  </div>
+								  <div class="col-md-6" id="metrics_column">
+									  <% if !la[:metrics].nil? && !la[:metrics].empty? %>
+									  <h4 class="col-md-12">Métricas del archivo</h4>
+										<table class="table table-responsive">
+											<thead>
+												<% la[:metrics][:metrics].each_key do |key| %>
+												<th 
+												  <% if !$pdepend_metric_names.nil? %>
+												  data-toggle="tooltip" data-container="body" data-placement="left" title="<%= $pdepend_metric_names[key] %>"
+												  <% end %>
+												>
+												  <%=key.upcase%>
+												</th>
+												<% end %>
+											</thead>
+											<tbody>
+												<tr>
+												<% la[:metrics][:metrics].each do |key, metric| %>
+												  <td>
+													<%='%.2f' %metric%>
+												  </td>
+												<% end %>
+												</tr>
+											</tbody>
+										</table>
+									  <h4 class="col-md-12">Clases y funciones en el archivo</h4>
+										<% la[:metrics][:content].each do |function_or_class| %>                                                                        
+										  <div class="col-md-12">
+											  <b><%= function_or_class[:type] %>:</b>&nbsp;<%= function_or_class[:name] %>
+											  <a role="button" data-toggle="collapse" data-parent="#metrics_column" href="#collapse_metrics_<%= index %>" aria-expanded="false" aria-controls="collapseOne" class="collapsed">
+												  <span class="app-toggle-button">Ver métricas</span>
+											  </a>
+										  </div>
+										  <div id="collapse_metrics_<%= index %>" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading_<%= index %>">
+											  <% tables = fit_metrics_to_tables(function_or_class[:metrics])%>
+											  <% tables.each do |partial| %>
+												  <table class="table table-responsive">
+													  <thead>                                                   
+													  <% partial.each_key do |key| %>
+														  <th 
+															<% if !$pdepend_metric_names.nil? %>
+															data-toggle="tooltip" data-container="body" data-placement="left" title="<%= $pdepend_metric_names[key] %>"
+															<% end %>
+														  >
+															<%=key.upcase%>
+														  </th>
+													  <% end %>
+													  </thead>
+													  <tbody>   
+														<tr>                                                
+														<% partial.each do |key, value| %>
+														  <td><%='%.2f' %value%></td>
+														<% end %>
+														</tr>
+													  </tbody>
+												  </table>
+											  <% end %>
+										  </div>
+											  <% #fin de tables.each %>
+										<% end %>
+										<% #fin de la[:metrics][:content] %>
 
-                                          <% end %>
-                                          <% #fin de if !la[:metrics].nil? && !la[:metrics].empty? %>
-                                      </div>
-                                  </div>
-                              </div>
-                          </div>
-                      </div>
-                    <% end %>
-                </div>		
-            </div>
-        </section>
-    </div>
+									  <% end %>
+									  <% #fin de if !la[:metrics].nil? && !la[:metrics].empty? %>
+								  </div>
+							  </div>
+							</div>
+						  </div>
+					  </div>
+					<% end %>
+				</div>	
+			</div>
+		</section>
+	</div>
 </div>
 <script type="text/javascript">
   $(function () {
-    $('[data-toggle="tooltip"]').tooltip();
+	$('[data-toggle="tooltip"]').tooltip();
   });
   $('.panel-collapse').on('hidden.bs.collapse', function () {
-    var targetTxt = (this.id.indexOf('metric') < 0 )?  'análisis' : 'métricas';
-    $($(this).parent()[0].querySelector('.app-toggle-button')).html('Ver ' + targetTxt);
+	var targetTxt = (this.id.indexOf('metric') < 0 )?  'análisis' : 'métricas';
+	$($(this).parent()[0].querySelector('.app-toggle-button')).html('Ver ' + targetTxt);
   });
   $('.panel-collapse').on('shown.bs.collapse', function () {
-    var targetTxt = (this.id.indexOf('metric') < 0 )?  'análisis' : 'métricas';
-    $($(this).parent()[0].querySelector('.app-toggle-button')).html('Ocultar ' + targetTxt);
+	var targetTxt = (this.id.indexOf('metric') < 0 )?  'análisis' : 'métricas';
+	$($(this).parent()[0].querySelector('.app-toggle-button')).html('Ocultar ' + targetTxt);
   });
+
+  $('panel-collapse collapse collapse_files').collapse();
 </script>
+<style type="text/css">
+	.show_results .link_collapse :hover{
+		text-decoration: none;
+	}
+</style>

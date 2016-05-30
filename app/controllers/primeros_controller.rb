@@ -43,8 +43,6 @@ class PrimerosController < ApplicationController
 					params[:primero][:scripts].each { |script|
 						#@fichero = script.read  
 							ex_file = script.content_type.split("/")
-							puts "***************"
-							puts ex_file
 							file = script.read
 							file_name = script.original_filename
               file_path = script.tempfile.path
@@ -59,8 +57,6 @@ class PrimerosController < ApplicationController
                 @analyzed_metrics = MetricAnalyzer.new.analyze_metrics(file_path, file_original_path)
               end
 							if (ex_file[1] == "x-php") || (ex_file[1] == "html")
-								puts "Entrando a la parte donde se la extesión del archivo."
-								puts file_name
 								begin
 									sections = MvcPhp.new.getSections(file.downcase,@rows,file_original_path) #creo que es más preciso indicar la ruta completa por si hay casos donde haya archivos con el mismo nombre pero en distintas subcarpetas del proyecto
                   (!@analyzed_metrics.nil? && !@analyzed_metrics.empty?)? 

@@ -26,6 +26,9 @@ class MvcPhp
             end
         end
         #hash = { :offset_section => optimus_script[index], :stack_php => stack_php,:file_name => file_name}
+        if stack_php.nil? || stack_php.empty?
+            stack_php = "empty"
+        end
         hash.push(stack_php)
         #sections_php.push(hash)
         if @key.to_s == "HTML_SECTION"
