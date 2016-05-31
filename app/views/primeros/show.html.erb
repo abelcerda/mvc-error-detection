@@ -14,6 +14,7 @@ def fit_metrics_to_tables(metrics)
   end 
   return tables
 end  
+serie = 0
 %>
 <div class="row">	
 	<div class="col-lg-12">
@@ -40,7 +41,7 @@ end
 									</div>	
 								</h4>
 						    </div>
-							<div id="collapse_<%= index %>" class="panel-collapse collapse collapse_files" role="tabpanel" aria-labelledby="heading_<%= index %>">
+							<div id="collapse_<%= index %>" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading_<%= index %>">
 							  <div class="panel-body">
 								  <div class="col-md-6">
 									<!-- contenido del analisis -->
@@ -87,14 +88,14 @@ end
 											</tbody>
 										</table>
 									  <h4 class="col-md-12">Clases y funciones en el archivo</h4>
-										<% la[:metrics][:content].each do |function_or_class| %>                                                                        
+										<% la[:metrics][:content].each_with_index do |function_or_class, index_m| %>                                                                        
 										  <div class="col-md-12">
 											  <b><%= function_or_class[:type] %>:</b>&nbsp;<%= function_or_class[:name] %>
-											  <a role="button" data-toggle="collapse" data-parent="#metrics_column" href="#collapse_metrics_<%= index %>" aria-expanded="false" aria-controls="collapseOne" class="collapsed">
+                                                                                          <a role="button" data-toggle="collapse" data-parent="#metrics_column" href="#collapse_metrics_<%= serie.to_s + '_' + index_m.to_s %>" aria-expanded="false" aria-controls="collapseOne" class="collapsed">
 												  <span class="app-toggle-button">Ver métricas</span>
 											  </a>
 										  </div>
-										  <div id="collapse_metrics_<%= index %>" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading_<%= index %>">
+										  <div id="collapse_metrics_<%= serie.to_s + '_' + index_m.to_s %>" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading_<%= serie.to_s + '_' + index_m.to_s %>">
 											  <% tables = fit_metrics_to_tables(function_or_class[:metrics])%>
 											  <% tables.each do |partial| %>
 												  <table class="table table-responsive">
@@ -120,6 +121,7 @@ end
 											  <% end %>
 										  </div>
 											  <% #fin de tables.each %>
+                                                                                          <% serie += 1 %>
 										<% end %>
 										<% #fin de la[:metrics][:content] %>
 
@@ -140,16 +142,11 @@ end
   $(function () {
 	$('[data-toggle="tooltip"]').tooltip();
   });
-  $('.panel-collapse').on('hidden.bs.collapse', function () {
-	var targetTxt = (this.id.indexOf('metric') < 0 )?  'análisis' : 'métricas';
-	$($(this).parent()[0].querySelector('.app-toggle-button')).html('Ver ' + targetTxt);
+  $('.app-toggle-button').click(function(){ //you can give id or class name here for $('button')
+    $(this).text(function(i,old){
+        return old.indexOf('Ver') < 0 ? old.replace('Ocultar', 'Ver') : old.replace('Ver', 'Ocultar');
+    });
   });
-  $('.panel-collapse').on('shown.bs.collapse', function () {
-	var targetTxt = (this.id.indexOf('metric') < 0 )?  'análisis' : 'métricas';
-	$($(this).parent()[0].querySelector('.app-toggle-button')).html('Ocultar ' + targetTxt);
-  });
-
-  $('panel-collapse collapse collapse_files').collapse();
 
 </script>
 <style type="text/css">
