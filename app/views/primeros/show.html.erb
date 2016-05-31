@@ -49,9 +49,9 @@ end
 												<% line.each do |l| %>
 													<pre><%=l[:line_number]%>.&nbsp;<%=l[:line_code]%></pre>
 													<% if $elementsOfController.include?(l[:token].to_s) %>
-														<p>Esta linea deber[ia estar en un: <b>CONTROLADOR</b></p>
+														<p>En la columna <%=l[:column_number]%> de esta linea hay un elemento que debería estar en un: <b>CONTROLADOR</b></p>
 													<% elsif $elementsOfModel.include?(l[:token].to_s) %>
-														<p>Esta linea deber[ia estar en un: <b>MODELO</b></p>
+														<p>En la columna <%=l[:column_number]%> de esta linea hay un elemento debería estar en un: <b>MODELO</b></p>
 													<%end%>
 												<% end %>
 											<% end %>
@@ -150,6 +150,9 @@ end
   });
 
   $('panel-collapse collapse collapse_files').collapse();
+  var lines = function(){
+  	
+  }
 </script>
 <style type="text/css">
 	.show_results .link_collapse :hover{

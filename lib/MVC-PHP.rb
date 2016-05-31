@@ -51,7 +51,7 @@ class MvcPhp
     else
         if array_list.is_a?(Hash)
             array_list.select { |key, value| @llave = key; @valor = value }
-            stack_php.push({:token => @llave, :line_code => script[@valor[0].to_i - 1], :line_number => (@valor[0].to_i) })
+            stack_php.push({:token => @llave, :line_code => script[@valor[0].to_i - 1], :line_number => (@valor[0].to_i), :column_number => (@valor[1].to_i) })
         end
     end
     return stack_php
