@@ -25,23 +25,23 @@ serie = 0
 			<div class="panel-body">
 				<div class="col-md-12">
 					<% $lexical_analyzer.each_with_index do |la,index| %>
-					  <div class="panel-group show_results" id="accordion" role="tablist" aria-multiselectable="true">
+					  <div class="panel-group show_results" id="accordion_<%= index+1%>" role="tablist" aria-multiselectable="true">
 						  <div class="panel panel-default">
-						    <div class="panel-heading" role="tab" id="heading_<%= index %>">
+						    <div class="panel-heading" role="tab" id="heading_<%= index+1 %>">
 								<h4 class="panel-title">
 									<div class="row">
 										<div class="col-md-6">
 											<%= la[:file_name] %>
 										</div>
 										<div class="col-md-6 text-right">
-											<a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapse_<%= index %>" aria-expanded="false" aria-controls="collapseOne" class="link_collapse">
+											<a role="button" data-toggle="collapse" data-parent="#accordion_<%= index+1%>" href="#collapse_<%= index+1 %>" aria-expanded="false" aria-controls="collapseOne" class="link_collapse">
 												<span class="app-toggle-button">Ver análisis</span>
 											</a>
 										</div>
 									</div>	
 								</h4>
 						    </div>
-							<div id="collapse_<%= index %>" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading_<%= index %>">
+							<div id="collapse_<%= index+1 %>" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading_<%= index+1 %>">
 							  <div class="panel-body">
 								  <div class="col-md-6">
 									<!-- contenido del analisis -->
