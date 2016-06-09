@@ -48,7 +48,7 @@ serie = 0
 										<% if la[:stack_php][0] != "empty" %>
 											<% la[:stack_php].each do |line| %>
 												<% line.each do |l| %>
-													<pre><%=l[:line_number]%>.&nbsp;<%=l[:line_code]%></pre>
+													<pre><%=l[:line_number]%>.&nbsp;<%= l[:line_code].html_safe %></pre>
 													<% if $elementsOfController.include?(l[:token].to_s) %>
 														<p>En la columna <%=l[:column_number]%> de esta linea hay un elemento que debería estar en un: <b>CONTROLADOR</b></p>
 													<% elsif $elementsOfModel.include?(l[:token].to_s) %>

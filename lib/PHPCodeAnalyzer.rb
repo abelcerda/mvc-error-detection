@@ -1,6 +1,7 @@
 require 'parslet'
 require 'pp'
 require 'yaml'
+require_relative 'ruby_constant/constant'
 
 class PhpLexer < Parslet::Parser    
 	rule(:space)                    { match('\s').repeat(1) }
@@ -198,28 +199,14 @@ class PhpLexer < Parslet::Parser
 							printers.as(:PRINT) | return_sentence.as(:RETURN) |
 							continue.as(:CONTINUE) ) >> str(";") >> blank }
 #--------------- DBA statement ------------------
-	rule(:dba_statement)    { (str("dba_open") | str("dba_exists") | str("dba_close") |
-							str("dba_fetch") | str("dba_firstkey") | str("dba_delete") |
-							str("dba_handlers") | str("dba_insert") |
-							str("dba_key_split") | str("dba_list") |
-							str("dba_optimize") | str("dba_sync") |
-							str("dba_replace") | str("dba_popen")) >> blank}
+	rule(:dba_statement)    { (dbaMethods) >> blank}
 #------------------------------------------------
 
 
 #--------------- PDO statement ------------------
-	rule(:pdo_statement)    { ((str("new pdo")) >> blank >> str("(") >> blank >>
+	rule(:pdo_statement)    { ((pdoInstance) >> blank >> str("(") >> blank >>
 							parameters >> blank >> str(")").maybe) >> blank }
-	rule(:pdo_methods)      { (str("query") | str("execute") |
-							str("fetchall") | str("fetchcolumn") |
-							str("fetch") | str("getattribute") |
-							str("getcolumnmeta") | str("nextrowset") |
-							str("rowcount") | str("setattribute") |
-							str("setfetchmode") | str("bindcolumn") |
-							str("bindparam") | str("bindvalue") | str("prepare") |
-							str("closecursor") | str("columncount") |
-							str("debugdumpparams") | str("errorcode") |
-							str("errorinfo")) >> blank >> str("(") >>
+	rule(:pdo_methods)      { (pdoMethods) >> blank >> str("(") >>
 							parameters >> blank >> str(")").maybe >> blank}
 #-----------------------------------------------
 
@@ -237,7 +224,7 @@ class PhpLexer < Parslet::Parser
 	rule(:var_array)                {(array_multiple_positions.as(:ARRAY_MULTIPLE_POSITIONS) | array_one_position.as(:ARRAY_ONE_POSITION)) >> blank }
 
 	rule(:array_multiple_positions) { (str("array") >> blank >> str("(") >> blank >> (array_content | variable) >> blank >> str(")")) >> blank }
-	rule(:array_one_position)       { ((str("$_post").as(:POST) | str("$_get").as(:GET) | str("array") | parent_string | simple_string) >> (str("[") >> blank >> (operation | internal_function | class_atributte | cadenas | variable).maybe >> blank >> str("]")).repeat(1)) >> blank }
+	rule(:array_one_position)       { ((postToken.as(:POST) | getToken.as(:GET) | str("array") | parent_string | simple_string) >> (str("[") >> blank >> (operation | internal_function | class_atributte | cadenas | variable).maybe >> blank >> str("]")).repeat(1)) >> blank }
 
 	rule(:array_content)            { asociative_array.as(:ASOC_ARRAY) | elements_array.as(:SIMPLE_ARRAY) }
 	
@@ -320,6 +307,41 @@ class PhpLexer < Parslet::Parser
 	rule(:parameters)               {((operation | class_atributte | var_array.as(:ARRAY_PARAM) | internal_function.as(:INT_FUNC_PARAM) | param_class | variable) >> blank >> str(",") >> blank).repeat.maybe >> blank >> (operation | class_atributte | var_array.as(:ARRAY_PARAM) | internal_function | param_class.as(:PrmCL) | variable) >> blank }
 
 	root(:analizer_file)
+
+	def dbaMethods
+		dba_methods = Variables.new()
+		model_operators = dba_methods.getDbaMethods()
+		operator = str(model_operators[0])
+		model_operators.each do |x|
+			operator = operator | str(x)
+		end
+		operator
+	end
+
+	def pdoInstance
+		instance = str(Variables.new.getPdoInstance())
+		instance
+	end
+
+	def getToken
+		get = str(Variables.new.getGetToken())
+		get
+	end
+
+	def postToken
+		post = str(Variables.new.getPostToken())
+		post
+	end
+
+	def pdoMethods
+		pdo_methods = Variables.new()
+		model_operators = pdo_methods.getPdoMethods()
+		operator = str(model_operators[0])
+		model_operators.each do |x|
+			operator = operator | str(x)
+		end
+		operator
+	end
 end
 
 class PhpTransformer < Parslet::Transform
@@ -597,7 +619,7 @@ cadena = "if($pepe){
 string = "$fields[$field->name] = $field->value;
 		$response->response = '[accepted]';"
 #archivo = File.read('/home/clifford/Documentos/archivos_prueba/scriptphp/Controller/controller.php')
-archivo = File.read('/home/clifford/Documentos/archivos_prueba/DirPrueba/scriptB.php')
+archivo = File.read('/home/clifford/Documentos/archivos_prueba/ejemplos-de-php/gramajo_FIN/controllers/controller.php')
 #puts archivo.downcase
 id = parse archivo.downcase
 puts id
