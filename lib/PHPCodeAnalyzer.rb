@@ -619,7 +619,7 @@ cadena = "if($pepe){
 string = "$fields[$field->name] = $field->value;
 		$response->response = '[accepted]';"
 #archivo = File.read('/home/clifford/Documentos/archivos_prueba/scriptphp/Controller/controller.php')
-archivo = File.read('/home/clifford/Documentos/archivos_prueba/ejemplos-de-php/gramajo_FIN/controllers/controller.php')
+archivo = File.read('/home/clifford/Documentos/archivos_prueba/ejemplos-de-php/gramajo_FIN/Clases/usuarioModel.php')
 #puts archivo.downcase
 id = parse archivo.downcase
 puts id

@@ -4,6 +4,8 @@ require_relative 'ruby_constant/constant'
 
 class MvcPhp
   @leaves = []
+  original_string = ""
+  downcase_string = ""
 
   def getSections(code,linesCode,file_name)
 	sections_script = ScriptLexer.new.parse(code)
@@ -15,7 +17,6 @@ class MvcPhp
 	k = 0
 	j = 0
 	stack_php = []
-	stack_html = [] #Ya no se usa xD
 	sections_php = [] # Array que va a contener le offset que se le sumara a los elementos del array @leaves
 	hash = []
 	php_sections_transform.each_with_index do |cod,index|
@@ -31,12 +32,6 @@ class MvcPhp
 			stack_php = "empty"
 		end
 		hash.push(stack_php)
-		#sections_php.push(hash)
-		if @key.to_s == "HTML_SECTION"
-			aux = @script.to_s.split("@")
-			stack_html[k] = aux[0]
-			k = k + 1
-		end
 	end
 	sections_php = {:stack_php => hash,:file_name => file_name}
 	#Llamada a la clase Php_Engine que
@@ -51,8 +46,10 @@ class MvcPhp
 		end
 	else
 		if array_list.is_a?(Hash)
+
 			array_list.select { |key, value| @llave = key; @valor = value }
-			#stack_php.push({:token => @llave, :line_code => script[@valor[0].to_i - 1], :column_number => (@valor[1].to_i) })
+			
+			#stack_php.push({:token => @llave, :line_code => script[@valor[0].to_i - 1], :column_number => (@valor[1].to_i) ,:line_number => (@valor[0].to_i)})
 			stack_php.push({:token => @llave, :line_code => self.addHighlightsToToken(script[@valor[0].to_i - 1],@llave,@valor[1].to_i), :line_number => (@valor[0].to_i), :column_number => (@valor[1].to_i) })
 		end
 	end
@@ -61,61 +58,49 @@ class MvcPhp
 
   def addHighlightsToToken(line,key,col)
 	vars = Variables.new()
+	cad_aux = line.to_s
 	line = line.to_s
+	line = line.downcase
 	key = key.to_s
-	puts line
-	puts "*****************************************"
 	case key
 		when "POST"
-			#cad = line[(col - 1), line.length].split('$_POST',2)
-			#cad = line[0 , (col - 1)] + cad[0] + "<span style='background-color: #A9F5A9'>$_POST</span>" + cad[1]
-			cad = self.makeCommonActions('$_POST',line,col)
+			cad = self.makeCommonActions('$_post',cad_aux,col)
 		when "GET"
-			cad = self.makeCommonActions('$_GET',line,col)
+			cad = self.makeCommonActions('$_get',cad_aux,col)
 		when "PDO_STATEMENT"  
-			cad = self.makeCommonActions('new PDO',line,col)
+			cad = self.makeCommonActions('new pdo',cad_aux,col)
 			#cad = line
 		when "PDO_METHODS"
-			cad = line[(col - 1), line.length]
+			first_part = cad_aux[0,(col - 1)]
+			cad = line[(col - 1), line.length] # toma a partir del token en adelante.
 			band = true
 			i = 0
 			pdo_methods = vars.getPdoMethods()
 			while ((i < pdo_methods.length) && band) do
-				i+=1
 				indice = cad.index(pdo_methods[i])
 				if !indice.nil? && (indice == 0)
-					cad = cad.split(pdo_methods[i],2)
-					cad =  line[0 , (col - 1)] + cad[0] + "<span style='background-color: #A9F5A9'>"+pdo_methods[i]+"</span>" + cad[1]
+					second_part = cad_aux[(pdo_methods[i].length),cad_aux.length]
+					cad = first_part + "<span style='background-color: #A9F5A9'>"+cad_aux[(col-1),(pdo_methods[i].length)]+"</span>"+second_part
 					band = false
 				end
+				i+=1
 			end
-=begin
-			vars.getPdoMethods().each do |pdo_methods|
-				indice = cad.index(pdo_methods)
-				if !indice.nil? && (indice == 0)
-					puts indice
-					cad = cad.split(pdo_methods,2)
-					cad =  line[0 , (col - 1)] + cad[0] + "<span style='background-color: #A9F5A9'>"+pdo_methods+"</span>" + cad[1]
-				end
-			end
-=end
 		when "DBA_STATEMENT"
+			first_part = cad_aux[0,(col - 1)]
 			cad = line[(col - 1), line.length]
 			band = true
 			j = 0
 			dba_methods = vars.getDbaMethods()
 			while ((j < dba_methods.length) && band) do
-				j+=1
 				indice = cad.index(dba_methods[j])
 				if !indice.nil? && (indice == 0)
-					cad = cad.split(dba_methods[j],2)
-					cad =  line[0 , (col - 1)] + cad[0] + "<span style='background-color: #A9F5A9'>"+dba_methods[j]+"</span>" + cad[1]
+					second_part = cad_aux[(dba_methods[j].length),cad_aux.length]
+					cad = first_part + "<span style='background-color: #A9F5A9'>"+cad_aux[(col-1),(dba_methods[j].length)]+"</span>"+second_part
 					band = false
 				end
+				j+=1
 			end
 	end
-	puts cad
-	puts "=============================================="
 	#"hello".tr_s('l', 'r')
 	#line.insert(index, 'estosevaadecontrolar')
 	#line
@@ -123,8 +108,7 @@ class MvcPhp
   end
 
   def makeCommonActions(token,line,col)
-	cad = line[(col - 1), line.length].split(token,2)
-	cad = line[0 , (col - 1)] + cad[0] + "<span style='background-color: #A9F5A9'>"+token+"</span>" + cad[1]
+	cad = line[0 , (col - 1)] + "<span style='background-color: #A9F5A9'>"+line[(col-1),token.length]+"</span>" + line[((col-1) + token.length),line.length]
   	cad
   end
 end
