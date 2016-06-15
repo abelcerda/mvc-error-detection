@@ -79,7 +79,7 @@ class MvcPhp
 			while ((i < pdo_methods.length) && band) do
 				indice = cad.index(pdo_methods[i])
 				if !indice.nil? && (indice == 0)
-					second_part = cad_aux[(pdo_methods[i].length),cad_aux.length]
+					second_part = cad_aux[((col-1)+(pdo_methods[i].length)),cad_aux.length]
 					cad = first_part + "<span style='background-color: #A9F5A9'>"+cad_aux[(col-1),(pdo_methods[i].length)]+"</span>"+second_part
 					band = false
 				end
