@@ -4,8 +4,11 @@ require_relative 'ruby_constant/constant'
 
 class MvcPhp
   @leaves = []
-  original_string = ""
-  downcase_string = ""
+  
+  
+  def initialize()
+  	@operations_mvc = {:model => nil, :controller => nil, :view => nil}
+  end
 
   def getSections(code,linesCode,file_name)
 	sections_script = ScriptLexer.new.parse(code)
@@ -27,7 +30,11 @@ class MvcPhp
 				stack_php = self.search_hashes(stack_php,line,linesCode,optimus_script[index])
 			end
 		end
-		#hash = { :offset_section => optimus_script[index], :stack_php => stack_php,:file_name => file_name}
+		
+		if (@key.to_s == "HTML_SECTION")
+			self.verifyOperation('view')
+		end
+
 		if stack_php.nil? || stack_php.empty?
 			stack_php = "empty"
 		end
@@ -50,7 +57,11 @@ class MvcPhp
 			array_list.select { |key, value| @llave = key; @valor = value }
 			
 			#stack_php.push({:token => @llave, :line_code => script[@valor[0].to_i - 1], :column_number => (@valor[1].to_i) ,:line_number => (@valor[0].to_i)})
-			stack_php.push({:token => @llave, :line_code => self.addHighlightsToToken(script[@valor[0].to_i - 1],@llave,@valor[1].to_i), :line_number => (@valor[0].to_i), :column_number => (@valor[1].to_i) })
+			stack_php.push({:token => @llave, 
+							:line_code => self.addHighlightsToToken(script[@valor[0].to_i - 1],@llave,@valor[1].to_i), 
+							:line_number => (@valor[0].to_i), 
+							:column_number => (@valor[1].to_i) , 
+							:operation => @operations_mvc})
 		end
 	end
 	return stack_php
@@ -65,10 +76,13 @@ class MvcPhp
 	case key
 		when "POST"
 			cad = self.makeCommonActions('$_post',cad_aux,col)
+			self.verifyOperation('controller')
 		when "GET"
 			cad = self.makeCommonActions('$_get',cad_aux,col)
+			self.verifyOperation('controller')
 		when "PDO_STATEMENT"  
 			cad = self.makeCommonActions('new pdo',cad_aux,col)
+			self.verifyOperation('model')
 			#cad = line
 		when "PDO_METHODS"
 			first_part = cad_aux[0,(col - 1)]
@@ -85,6 +99,7 @@ class MvcPhp
 				end
 				i+=1
 			end
+			self.verifyOperation('model')
 		when "DBA_STATEMENT"
 			first_part = cad_aux[0,(col - 1)]
 			cad = line[(col - 1), line.length]
@@ -100,11 +115,18 @@ class MvcPhp
 				end
 				j+=1
 			end
+			self.verifyOperation('model')
 	end
 	#"hello".tr_s('l', 'r')
 	#line.insert(index, 'estosevaadecontrolar')
 	#line
 	cad
+  end
+
+  def verifyOperation(operation)
+	if @operations_mvc[operation.to_sym].nil? && (@operations_mvc[operation.to_sym] != true)
+				@operations_mvc[operation.to_sym] = true
+	end
   end
 
   def makeCommonActions(token,line,col)

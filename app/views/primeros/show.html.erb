@@ -48,6 +48,7 @@ serie = 0
 										<% if la[:stack_php][0] != "empty" %>
 											<% la[:stack_php].each do |line| %>
 												<% line.each do |l| %>
+																							<%= l[:operation]%>
 													<pre><%=l[:line_number]%>.&nbsp;<%= l[:line_code].html_safe %></pre>
 													<% if $elementsOfController.include?(l[:token].to_s) %>
 														<p>En la columna <%=l[:column_number]%> de esta linea hay un elemento que debería estar en un: <b id="tooltip_controller" data-toggle="tooltip" data-placement="bottom" title="laksjhdfkljahsdlkfjhkjsdhf">CONTROLADOR</b></p>
