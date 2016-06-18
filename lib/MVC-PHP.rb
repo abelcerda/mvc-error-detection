@@ -19,31 +19,39 @@ class MvcPhp
 
 	k = 0
 	j = 0
-	stack_php = []
 	sections_php = [] # Array que va a contener le offset que se le sumara a los elementos del array @leaves
 	hash = []
 	php_sections_transform.each_with_index do |cod,index|
-		stack_php = []
+		stack_token = []
 		cod.select { |key, value| @key = key; @script = value }
 		if (@key.to_s == "PHP_SECTION") && (@script.is_a?(Array) || @script.is_a?(Hash))  
 			@script.each do |line|
-				stack_php = self.search_hashes(stack_php,line,linesCode,optimus_script[index])
+				stack_token = self.search_hashes(stack_token,line,linesCode,optimus_script[index])
 			end
-		end
-		
-		if (@key.to_s == "HTML_SECTION")
+		elsif (@key.to_s == "HTML_SECTION")
+			stack_token.push(self.analyzerHtml(optimus_script[index]))
 			self.verifyOperation('view')
+		else
+			stack_token = "empty"
 		end
-
-		if stack_php.nil? || stack_php.empty?
-			stack_php = "empty"
-		end
-		hash.push(stack_php)
+	
+		hash.push(stack_token)
 	end
-	sections_php = {:stack_php => hash,:file_name => file_name}
+	sections_php = {:stack_token => hash,
+					:file_name => file_name,
+					:operation => @operations_mvc}
 	#Llamada a la clase Php_Engine que
 	#@leaves = PHPCodeAnalyzer.new.runPHP(stack_php,offset_php)
 	return sections_php
+  end
+
+  def analyzerHtml(html_section)
+  	html = {:token => 'html', 
+			:line_code => nil, 
+			:line_number => html_section[:HTML_SECTION][0], 
+			:column_number =>  html_section[:HTML_SECTION][1]
+			}
+	html
   end
 
   def search_hashes(stack_php,array_list,script,offset_section)
@@ -53,15 +61,13 @@ class MvcPhp
 		end
 	else
 		if array_list.is_a?(Hash)
-
 			array_list.select { |key, value| @llave = key; @valor = value }
-			
 			#stack_php.push({:token => @llave, :line_code => script[@valor[0].to_i - 1], :column_number => (@valor[1].to_i) ,:line_number => (@valor[0].to_i)})
 			stack_php.push({:token => @llave, 
 							:line_code => self.addHighlightsToToken(script[@valor[0].to_i - 1],@llave,@valor[1].to_i), 
 							:line_number => (@valor[0].to_i), 
-							:column_number => (@valor[1].to_i) , 
-							:operation => @operations_mvc})
+							:column_number => (@valor[1].to_i) 
+							})
 		end
 	end
 	return stack_php

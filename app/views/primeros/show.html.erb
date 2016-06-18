@@ -45,16 +45,20 @@ serie = 0
 							  <div class="panel-body">
 								  <div class="col-md-6">
 									<!-- contenido del analisis -->
-										<% if la[:stack_php][0] != "empty" %>
-											<% la[:stack_php].each do |line| %>
+										<% if la[:stack_token][0] != "empty" %>
+											<% la[:stack_token].each do |line| %>
+
 												<% line.each do |l| %>
-																							<%= l[:operation]%>
-													<pre><%=l[:line_number]%>.&nbsp;<%= l[:line_code].html_safe %></pre>
-													<% if $elementsOfController.include?(l[:token].to_s) %>
-														<p>En la columna <%=l[:column_number]%> de esta linea hay un elemento que debería estar en un: <b id="tooltip_controller" data-toggle="tooltip" data-placement="bottom" title="laksjhdfkljahsdlkfjhkjsdhf">CONTROLADOR</b></p>
-													<% elsif $elementsOfModel.include?(l[:token].to_s) %>
-														<p>En la columna <%=l[:column_number]%> de esta linea hay un elemento debería estar en un: <b id="tooltip_model" data-toggle="tooltip" data-placement="bottom" title="ajsdlkjfahslkdjhflasd">MODELO</b></span></p>
-													<%end%>
+													<% if !(l[:token] == 'html') %>
+														<pre><%=l[:line_number]%>.&nbsp;<%= l[:line_code].html_safe %></pre>
+														<% if $elementsOfController.include?(l[:token].to_s) %>
+															<p>En la columna <%=l[:column_number]%> de esta linea hay un elemento que debería estar en un: <b id="tooltip_controller" data-toggle="tooltip" data-placement="bottom" title="laksjhdfkljahsdlkfjhkjsdhf">CONTROLADOR</b></p>
+														<% elsif $elementsOfModel.include?(l[:token].to_s) %>
+															<p>En la columna <%=l[:column_number]%> de esta linea hay un elemento debería estar en un: <b id="tooltip_model" data-toggle="tooltip" data-placement="bottom" title="ajsdlkjfahslkdjhflasd">MODELO</b></span></p>
+														<%end%>
+													<% else %>
+														<pre>Esta secccion corresponde a una vista a partir de la linea <%=l[:line_number]%>.</pre>
+													<% end %>
 												<% end %>
 											<% end %>
 										<% else %>
@@ -62,7 +66,7 @@ serie = 0
 												<h4>El archivo no contiene caracteristicas que correspoden con un controlador o modelo.</h4>
 											</div>
 										<% end %>
-										
+										<%= la[:operation] %>
 								  </div>
 								  <div class="col-md-6" id="metrics_column">
 									  <% if !la[:metrics].nil? && !la[:metrics].empty? %>
