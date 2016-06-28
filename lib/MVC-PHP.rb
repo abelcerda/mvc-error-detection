@@ -13,10 +13,12 @@ class MvcPhp
   def getSections(code,linesCode,file_name)
 	sections_script = ScriptLexer.new.parse(code)
 	optimus_script = Transformio.new.apply(sections_script)
-   
+
 	php_sections_analyzed = PhpLexer.new.parse(code)
 	php_sections_transform = PhpTransformer.new.apply(php_sections_analyzed)
-
+ puts"-----------------------------"
+   puts php_sections_transform
+   puts "---------------------------"
 	k = 0
 	j = 0
 	sections_php = [] # Array que va a contener le offset que se le sumara a los elementos del array @leaves
@@ -31,8 +33,7 @@ class MvcPhp
 		elsif (@key.to_s == "HTML_SECTION")
 			stack_token.push(self.analyzerHtml(optimus_script[index]))
 			self.verifyOperation('view')
-		else
-			stack_token = "empty"
+		
 		end
 	
 		hash.push(stack_token)
@@ -131,7 +132,7 @@ class MvcPhp
 
   def verifyOperation(operation)
 	if @operations_mvc[operation.to_sym].nil? && (@operations_mvc[operation.to_sym] != true)
-				@operations_mvc[operation.to_sym] = true
+		@operations_mvc[operation.to_sym] = true
 	end
   end
 
