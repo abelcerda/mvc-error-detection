@@ -83,7 +83,7 @@ end
                                                                                     <br>Este archivo parece ser un <b>C</b>ontrolador de MV<b>C</b>.
 										<% end %>
 										<% if more_than_one_component_type(la[:operation]) %>
-                                                                                  <div class="alert alert-danger" id="error-operations"> ERROR: Se encontraron operaciones de distintos tipos en el mismo archivo (
+                                                                                  <div class="alert alert-danger" id="error-operations" data-toggle="tooltip" data-container="body" data-placement="left" title="El patrón MVC recomienda que un archivo tenga solo un tipo de componente."> ERROR: Se encontraron operaciones de distintos tipos en el mismo archivo (
                                                                                     <% if la[:operation][:model]%>Modelo<% end %>
                                                                                     <% if la[:operation][:view]%>
                                                                                       <% if la[:operation][:model] && la[:operation][:controller]%>, <% end %>
@@ -94,7 +94,7 @@ end
                                                                                       <% if la[:operation][:model] || la[:operation][:view]%> y <% end %>
                                                                                       Controlador
                                                                                     <% end %>
-                                                                                    ). Se recomienda separarar los componentes en distintos archivos.
+                                                                                    ).
                                                                                   </div>
 										<% end %>
 								  </div>
