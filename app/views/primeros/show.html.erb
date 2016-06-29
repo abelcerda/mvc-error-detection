@@ -15,6 +15,13 @@ def fit_metrics_to_tables(metrics)
   return tables
 end  
 serie = 0
+
+def more_than_one_component_type(operations)
+    return (operations[:model] && operations[:view]) ||
+      (operations[:model] && operations[:controller])||
+      (operations[:controller] && operations[:view])
+end
+
 %>
 <div class="row show_results">	
 	<div class="col-lg-12">
@@ -66,7 +73,30 @@ serie = 0
 												<h4>El archivo no contiene caracteristicas que correspoden con un controlador o modelo.</h4>
 											</div>
 										<% end %>
-										<%= la[:operation] %>
+										<% if la[:operation][:model] && !la[:operation][:controller] && !la[:operation][:view] %>
+                                                                                    <br>Este archivo parece ser un <b>M</b>odelo de <b>M</b>VC.
+										<% end %>
+										<% if la[:operation][:view] && !la[:operation][:controller] && !la[:operation][:model] %>
+                                                                                    <br>Este archivo parece ser una <b>V</b>ista de M<b>V</b>C.
+										<% end %>
+										<% if la[:operation][:controller] && !la[:operation][:model] && !la[:operation][:view] %>
+                                                                                    <br>Este archivo parece ser un <b>C</b>ontrolador de MV<b>C</b>.
+										<% end %>
+										<% if more_than_one_component_type(la[:operation]) %>
+                                                                                  <div class="alert alert-danger" id="error-operations"> ERROR: Se encontraron operaciones de distintos tipos en el mismo archivo (
+                                                                                    <% if la[:operation][:model]%>Modelo<% end %>
+                                                                                    <% if la[:operation][:view]%>
+                                                                                      <% if la[:operation][:model] && la[:operation][:controller]%>, <% end %>
+                                                                                      <% if la[:operation][:model] && !la[:operation][:controller]%> y <% end %>
+                                                                                      Vista
+                                                                                    <% end %>
+                                                                                    <% if la[:operation][:controller]%>
+                                                                                      <% if la[:operation][:model] || la[:operation][:view]%> y <% end %>
+                                                                                      Controlador
+                                                                                    <% end %>
+                                                                                    ). Se recomienda separarar los componentes en distintos archivos.
+                                                                                  </div>
+										<% end %>
 								  </div>
 								  <div class="col-md-6" id="metrics_column">
 									  <% if !la[:metrics].nil? && !la[:metrics].empty? %>
