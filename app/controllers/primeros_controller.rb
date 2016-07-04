@@ -64,7 +64,7 @@ class PrimerosController < ApplicationController
                     FALSE # generar algún mensaje cuando no hay métricas para ese archivo
 									@files.push(sections)
 								rescue
-									puts "se ha producido una excepcion. "+file_name.to_s
+									puts "se ha producido una excepcion. ------>"+file_name.to_s
 								end
 							else
 								if ex_file[1] == "x-trash"

@@ -16,9 +16,9 @@ class MvcPhp
 
 	php_sections_analyzed = PhpLexer.new.parse(code)
 	php_sections_transform = PhpTransformer.new.apply(php_sections_analyzed)
- puts"-----------------------------"
-   puts php_sections_transform
-   puts "---------------------------"
+ 	#puts"-----------------------------"
+   #puts php_sections_transform
+   	#puts "---------------------------"
 	k = 0
 	j = 0
 	sections_php = [] # Array que va a contener le offset que se le sumara a los elementos del array @leaves
