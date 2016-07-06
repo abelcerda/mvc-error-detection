@@ -52,7 +52,7 @@ end
 							  <div class="panel-body">
 								  <div class="col-md-6">
 									<!-- contenido del analisis -->
-										<% if la[:stack_token][0] != "empty" %>
+										<% if la[:stack_token][0] != "empty" && !la[:stack_token][0].empty? %>
 											<% la[:stack_token].each do |line| %>
 
 												<% line.each do |l| %>
@@ -70,7 +70,7 @@ end
 											<% end %>
 										<% else %>
 											<div class="col-md-12">
-												<h4>El archivo no contiene caracteristicas que correspoden con un controlador o modelo.</h4>
+                                                                                            No se encontraron características que correspodan a un componente MVC. <b data-toggle="tooltip" data-container="body" data-placement="bottom" title="Puede tratarse de una librería, definición de clases u otro archivo similar.">Más...</b>
 											</div>
 										<% end %>
 										<% if la[:operation][:model] && !la[:operation][:controller] && !la[:operation][:view] %>
@@ -83,7 +83,8 @@ end
                                                                                     <br>Este archivo parece ser un <b>C</b>ontrolador de MV<b>C</b>.
 										<% end %>
 										<% if more_than_one_component_type(la[:operation]) %>
-                                                                                  <div class="alert alert-danger" id="error-operations" data-toggle="tooltip" data-container="body" data-placement="left" title="El patrón MVC recomienda que un archivo tenga solo un tipo de componente."> ERROR: Se encontraron operaciones de distintos tipos en el mismo archivo (
+                                                                                  <div class="alert alert-danger" id="error-operations" data-toggle="tooltip" data-container="body" data-placement="left" title="El patrón MVC recomienda que un archivo tenga solo un tipo de componente."> 
+                                                                                    ERROR: Se encontraron operaciones de distintos tipos en el mismo archivo (
                                                                                     <% if la[:operation][:model]%>Modelo<% end %>
                                                                                     <% if la[:operation][:view]%>
                                                                                       <% if la[:operation][:model] && la[:operation][:controller]%>, <% end %>
@@ -161,6 +162,10 @@ end
 										<% end %>
 										<% #fin de la[:metrics][:content] %>
 
+									  <% else %>
+                                                                            <div class="col-md-12">
+                                                                                No se obtuvieron métricas para este archivo.  <b data-toggle="tooltip" data-container="body" data-placement="bottom" title="Puede tratarse de un archivo vacío o uno que contiene sentencias de las cuales no puede calcularse métricas con el analizador actual.">Más...</b>
+                                                                            </div>
 									  <% end %>
 									  <% #fin de if !la[:metrics].nil? && !la[:metrics].empty? %>
 								  </div>
