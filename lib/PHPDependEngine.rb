@@ -1,8 +1,6 @@
   require 'tempfile'
   require_relative 'XMLCodeAnalyzer'
   $pdepend_command_path = './lib/phpdepend/vendor/pdepend/pdepend/src/bin/pdepend'
-# TO DO: mejorar la generación de la ruta. Tal vez parte de esa ruta se encuentre en la ruta de la aplicación rails
-# EDIT: si se ejecuta un comando desde acá, la ruta actual es /home/abel/projects/git/tesis_bitbucket/tesis
   $pdepend_metric_names = {
     'ahh' => 'Average Hierarchy Height',
     'andc' => 'Average Number of Derived Classes',
@@ -21,6 +19,7 @@
     'dit' => 'Depth of Inheritance Tree',
     'eloc' => 'Executable Lines of Code',
     'fanout' => 'Number of Fanouts',
+    'impl' => 'Number of class implementations',
     'leafs' => 'Number of Leaf Classes',
     'lloc' => 'Logical Lines Of Code',
     'loc' => 'Lines Of Code',
