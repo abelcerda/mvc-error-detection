@@ -654,7 +654,7 @@ def parse(str)
 rescue Parslet::ParseFailed => failure
   puts failure.cause.ascii_tree
 end
-
+=begin
 #archivo = File.read('/home/clifford/Documentos/archivos_prueba/scriptphp/Controller/controller.php')
 archivo = File.read('/home/clifford/Documentos/archivos_prueba/expRegg/class.pop3.php')
 #puts archivo.downcase
@@ -663,3 +663,4 @@ puts id
 puts"*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*"
 optimus = PhpTransformer.new.apply(id)
 pp optimus
+=end

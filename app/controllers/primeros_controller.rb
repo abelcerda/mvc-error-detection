@@ -34,6 +34,7 @@ class PrimerosController < ApplicationController
 		@files = []
 		@rows = []
     @metrics = []
+    @qty_components_type = {:model => 0, :controller => 0, :view => 0, :multi_type => 0}
 		#@analyzer = Primero.new(analyzer_params)
 		#puts YAML::dump(params[:primero][:scripts])
 		#puts YAML::dump(params[:images])
@@ -59,6 +60,9 @@ class PrimerosController < ApplicationController
 							if (ex_file[1] == "x-php") || (ex_file[1] == "html")
 								begin
 									sections = MvcPhp.new.getSections(file.downcase,@rows,file_original_path) #creo que es más preciso indicar la ruta completa por si hay casos donde haya archivos con el mismo nombre pero en distintas subcarpetas del proyecto
+                  
+									self.getStadistics(sections)
+
                   (!@analyzed_metrics.nil? && !@analyzed_metrics.empty?)? 
                     sections[:metrics] = @analyzed_metrics : 
                     FALSE # generar algún mensaje cuando no hay métricas para ese archivo
@@ -74,6 +78,7 @@ class PrimerosController < ApplicationController
 							@rows = []
 					}
 		end
+		$stadistics = @qty_components_type
 		$lexical_analyzer = @files
 		respond_to do |format|
 			if @files.nil?
@@ -86,8 +91,22 @@ class PrimerosController < ApplicationController
 		end
 	end
 
-	def show_result
+	def getStadistics(sections)
+		if sections[:operation][:model] && !sections[:operation][:controller] && !sections[:operation][:view]
+			@qty_components_type[:model] += 1
+		end
 		
+		if sections[:operation][:view] && !sections[:operation][:controller] && !sections[:operation][:model]
+			@qty_components_type[:view] += 1
+		end
+		
+		if sections[:operation][:controller] && !sections[:operation][:model] && !sections[:operation][:view]
+			@qty_components_type[:controller] += 1
+		end
+
+		if (sections[:operation][:model] && sections[:operation][:view]) || (sections[:operation][:model] && sections[:operation][:controller]) || (sections[:operation][:controller] && sections[:operation][:view])
+			@qty_components_type[:multi_type] += 1
+    end
 	end
 
 	# PATCH/PUT /primeros/1

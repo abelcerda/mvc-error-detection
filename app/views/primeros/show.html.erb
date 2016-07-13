@@ -31,6 +31,44 @@ end
 			</header>
 			<div class="panel-body">
 				<div class="col-md-12">
+					<div class="panel panel-default">
+						<div class="panel-heading">
+							<h3 class="panel-title">Estadisticas</h3>
+						</div>
+						<div class="panel-body">
+							<div class="col-md-12">
+								<div class="col-md-2"></div>
+								<div class="col-md-8">
+									<table class="table_stadistics">
+										<tbody>
+											<tr>
+												<td colspan="2" align="center">
+													<span>Archivos Analizados:</span>&nbsp;<span><b><%=$lexical_analyzer.length%></b></span>
+												</td>
+											</tr>
+											<tr>
+												<td>
+													<span>Modelos encontrados:</span>&nbsp;<span><b><%=$stadistics[:model]%></b></span>
+												</td>
+												<td>
+													<span>Vistas enontradas:</span>&nbsp;<span><b><%=$stadistics[:view]%></b></span>
+												</td>
+											</tr>
+											<tr>
+												<td>
+													<span>Controladores enontrados:</span>&nbsp;<span><b><%=$stadistics[:controller]%></b></span>
+												</td>
+												<td>
+													<span>Archivos con operaciones de distinto tipo:</span>&nbsp;<span><b><%=$stadistics[:multi_type]%></b></span>
+												</td>	
+											</tr>
+										</tbody>
+									</table>
+								</div>
+								<div class="col-md-2"></div>
+							</div>
+						</div>
+					</div>
 					<% $lexical_analyzer.each_with_index do |la,index| %>
 					  <div class="panel-group show_results" id="accordion_<%= index+1%>" role="tablist" aria-multiselectable="true">
 						  <div class="panel panel-default">
@@ -73,6 +111,7 @@ end
 												<h4>El archivo no contiene caracteristicas que correspoden con un controlador o modelo.</h4>
 											</div>
 										<% end %>
+										<%= la[:operation] %>
 										<% if la[:operation][:model] && !la[:operation][:controller] && !la[:operation][:view] %>
                                                                                     <br>Este archivo parece ser un <b>M</b>odelo de <b>M</b>VC.
 										<% end %>
