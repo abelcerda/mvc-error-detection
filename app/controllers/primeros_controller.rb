@@ -15,7 +15,18 @@ class PrimerosController < ApplicationController
 	# GET /primeros/1
 	# GET /primeros/1.json
 	def show
-		
+		if params[:id] == 'pdf'
+      render :pdf => "file_name",
+              :orientation  => 'Portrait',
+              :margin => { :top => 8.5,
+                           :bottom => 8.5,
+                           :left => 6,
+                           :right => 6
+                          },
+              :template => 'primeros/report.erb',
+              :disposition => 'attachment'  
+      return
+    end
 	end 
 
 	# GET /primeros/new
