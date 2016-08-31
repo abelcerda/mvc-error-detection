@@ -1,0 +1,275 @@
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <%= wicked_pdf_stylesheet_link_tag "nuevo" -%>
+</head>
+<%
+def fit_metrics_to_tables(metrics)
+  i=0 
+  j = -1
+  max_col=7
+  tables = Array.new
+  metrics.each do |key, value| 
+    if i%max_col == 0
+      j += 1
+      tables[j] = Hash.new
+      end
+    tables[j] = tables[j].merge({key=>value})
+    i += 1
+    end 
+  return tables
+  end  
+serie = 0
+
+def more_than_one_component_type(operations)
+  return (operations[:model] && operations[:view]) ||
+    (operations[:model] && operations[:controller])||
+    (operations[:controller] && operations[:view])
+  end
+
+%>
+<body>
+    <style>
+        div.alwaysbreak { page-break-before: always; }
+        div.nobreak:before { clear:both; }
+        div.nobreak { page-break-inside: avoid; }
+    </style>
+    <div id="container" class="">
+
+        <!--main content start-->
+        <div id="main-content">
+            <div class="wrapper">  
+                <div class="row show_results">	
+                    <div class="col-lg-12">
+                        <div class="panel">
+                            <div class="panel-heading">
+                                <h2 class="panel-title">
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                          Resultados de los análisis
+                                        </div>
+                                    </div>	
+                                </h2>
+                            </div>
+                            <div class="panel-body">
+                                <div class="col-md-12">
+                                    <div class="panel panel-default">
+                                        <div class="panel-heading">
+                                            <h3 class="panel-title">Estadísticas Generales</h3>
+                                        </div>
+                                        <div class="panel-body">
+                                            <div class="col-md-12">
+                                                <div class="col-md-2"></div>
+                                                <div class="col-md-8">
+                                                    <table class="table_stadistics">
+                                                        <tbody>
+                                                            <tr>
+                                                                <td colspan="2" align="center">
+                                                                    <span>Archivos Analizados:</span>&nbsp;<span><b><%=$lexical_analyzer.length%></b></span>
+                                                                </td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>
+                                                                    <span>Modelos encontrados:</span>&nbsp;<span><b><%=$stadistics[:model]%></b></span>
+                                                                </td>
+                                                                <td>
+                                                                    <span>Vistas enontradas:</span>&nbsp;<span><b><%=$stadistics[:view]%></b></span>
+                                                                </td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>
+                                                                    <span>Controladores enontrados:</span>&nbsp;<span><b><%=$stadistics[:controller]%></b></span>
+                                                                </td>
+                                                                <td>
+                                                                    <span>Archivos con operaciones de distinto tipo:</span>&nbsp;<span><b><%=$stadistics[:multi_type]%></b></span>
+                                                                </td>	
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                                <div class="col-md-2"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <% $lexical_analyzer.each_with_index do |la,index| %>
+                                      <div class="panel-group show_results alwaysbreak" id="accordion_<%= index+1%>" role="tablist" aria-multiselectable="true">
+                                          <div class="panel panel-default">
+                                              <div class="panel-heading" role="tab" id="heading_<%= index+1 %>">
+                                                  <h4 class="panel-title">
+                                                      <div class="row">
+                                                          <div class="col-md-6">
+                                                              <%= la[:file_name] %>
+                                                          </div>
+                                                      </div>	
+                                                  </h4>
+                                              </div>
+                                              <div id="collapse_<%= index+1 %>" class="panel-collapse" role="tabpanel" aria-labelledby="heading_<%= index+1 %>">
+                                                  <div class="panel-body">
+                                                      <div class="col-md-6">
+                                                          <!-- contenido del analisis -->
+                                                          <% if la[:stack_token][0] != "empty" && !la[:stack_token][0].empty? %>
+                                                            <% la[:stack_token].each do |line| %>
+
+                                                              <% line.each do |l| %>
+                                                                <% if !(l[:token] == 'html') %>
+                                                                  <pre><%=l[:line_number]%>.&nbsp;<%= l[:line_code].html_safe %></pre>
+                                                                  <% if $elementsOfController.include?(l[:token].to_s) %>
+                                                                    <p>En la columna <%=l[:column_number]%> de esta linea hay un elemento que debería estar en un: <b id="tooltip_controller" data-toggle="tooltip" data-placement="bottom" title="laksjhdfkljahsdlkfjhkjsdhf">CONTROLADOR</b></p>
+                                                                  <% elsif $elementsOfModel.include?(l[:token].to_s) %>
+                                                                    <p>En la columna <%=l[:column_number]%> de esta linea hay un elemento debería estar en un: <b id="tooltip_model" data-toggle="tooltip" data-placement="bottom" title="ajsdlkjfahslkdjhflasd">MODELO</b></span></p>
+                                                                  <%end%>
+                                                                <% else %>
+                                                                  <pre>Esta secccion corresponde a una vista a partir de la linea <%=l[:line_number]%>.</pre>
+                                                                <% end %>
+                                                              <% end %>
+                                                            <% end %>
+                                                          <% else %>
+                                                            <div class="col-md-12">
+                                                                No se encontraron características que correspodan a un componente MVC. (Ver Ref1 en el listado de referencias).
+                                                            </div>
+                                                          <% end %>
+                                                          <% if la[:operation][:model] && !la[:operation][:controller] && !la[:operation][:view] %>
+                                                            <br>Este archivo parece ser un <b>M</b>odelo de <b>M</b>VC.
+                                                          <% end %>
+                                                          <% if la[:operation][:view] && !la[:operation][:controller] && !la[:operation][:model] %>
+                                                            <br>Este archivo parece ser una <b>V</b>ista de M<b>V</b>C.
+                                                          <% end %>
+                                                          <% if la[:operation][:controller] && !la[:operation][:model] && !la[:operation][:view] %>
+                                                            <br>Este archivo parece ser un <b>C</b>ontrolador de MV<b>C</b>.
+                                                          <% end %>
+                                                          <% if more_than_one_component_type(la[:operation]) %>
+                                                            <div class="alert alert-danger" id="error-operations" data-toggle="tooltip" data-container="body" data-placement="left" title=""> 
+                                                                ATENCIÓN: Se encontraron operaciones de distintos tipos en el mismo archivo (
+                                                                <% if la[:operation][:model]%>Modelo<% end %>
+                                                                <% if la[:operation][:view]%>
+                                                                  <% if la[:operation][:model] && la[:operation][:controller]%>, <% end %>
+                                                                  <% if la[:operation][:model] && !la[:operation][:controller]%> y <% end %>
+                                                                  Vista
+                                                                <% end %>
+                                                                <% if la[:operation][:controller]%>
+                                                                  <% if la[:operation][:model] || la[:operation][:view]%> y <% end %>
+                                                                  Controlador
+                                                                <% end %>
+                                                                ). (Ver Ref2 en el listado de referencias).
+                                                            </div>
+                                                          <% end %>
+                                                      </div>
+                                                      <hr>
+                                                      <div class="col-md-6" id="metrics_column">
+                                                          <% if !la[:metrics].nil? && !la[:metrics].empty? %>
+                                                            <div class="col-md-12 nobreak">
+                                                                <h4 class="col-md-12">Métricas del archivo</h4>
+                                                                <table class="table table-responsive">
+                                                                    <thead>
+                                                                        <% la[:metrics][:metrics].each_key do |key| %>
+                                                                      <th>
+                                                                          <small><%=key.upcase%></small>
+                                                                      </th>
+                                                                    <% end %>
+                                                                    </thead>
+                                                                    <tbody>
+                                                                        <tr>
+                                                                            <% la[:metrics][:metrics].each do |key, metric| %>
+                                                                              <td>
+                                                                                  <small><%='%.2f' %metric%></small>
+                                                                              </td>
+                                                                            <% end %>
+                                                                        </tr>
+                                                                    </tbody>
+                                                                </table>
+                                                            </div>
+                                                            <hr>
+                                                            <h4 class="col-md-12">Clases y funciones en el archivo</h4>
+                                                            <% la[:metrics][:content].each_with_index do |function_or_class, index_m| %>                                                                        
+                                                              <div class="col-md-12">
+                                                                  <b><%= function_or_class[:type] %>:</b>&nbsp;<%= function_or_class[:name] %>
+                                                              </div>
+                                                              <div id="collapse_metrics_<%= serie.to_s + '_' + index_m.to_s %>" class="panel-collapse nobreak" role="tabpanel" aria-labelledby="heading_<%= serie.to_s + '_' + index_m.to_s %>">
+                                                                  <% tables = fit_metrics_to_tables(function_or_class[:metrics])%>
+                                                                  <% tables.each do |partial| %>
+                                                                    <table class="table table-responsive">
+                                                                        <thead>                                                   
+                                                                            <% partial.each_key do |key| %>
+                                                                          <th>
+                                                                              <small><%=key.upcase%></small>
+                                                                          </th>
+                                                                        <% end %>
+                                                                        </thead>
+                                                                        <tbody>   
+                                                                            <tr>                                                
+                                                                                <% partial.each do |key, value| %>
+                                                                                  <td><small><%='%.2f' %value%></small></td>
+                                                                                <% end %>
+                                                                            </tr>
+                                                                        </tbody>
+                                                                    </table>
+                                                                  <% end %>
+                                                              </div>
+                                                              <% #fin de tables.each %>
+                                                              <% serie += 1 %>
+                                                            <% end %>
+                                                            <% #fin de la[:metrics][:content] %>
+
+                                                          <% else %>
+                                                            <div class="col-md-12">
+                                                                No se obtuvieron métricas para este archivo. (Ver Ref1 en el listado de referencias).
+                                                            </div>
+                                                          <% end %>
+                                                          <% #fin de if !la[:metrics].nil? && !la[:metrics].empty? %>
+                                                      </div>
+                                                  </div>
+                                              </div>
+                                          </div>
+                                      </div>
+                                    <% end %>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="panel alwaysbreak">
+                            <div class="panel-heading">
+                                <h4 class="panel-title">
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            Referencias
+                                        </div>
+                                    </div>	
+                                </h4>
+                            </div>
+                            <div class="panel-body">
+                                <div class="col-md-12">
+                                              <%#*Panel de Referencias de MVC%>
+                                    <div class="panel panel-default">
+                                        <div class="panel-heading">
+                                            <h3 class="panel-title">Criterios del análisis de la implementación del patrón MVC</h3>
+                                        </div>
+                                        <div class="panel-body">
+                                            <div class="col-md-12">
+                                                <p>Ref1: El analizador no reconoce algún componente del patrón MVC en el archivo. Puede tratarse de una librería, definición de clases u otro tipo de componente.</p>
+                                                <p>Ref2: Se encontraron operaciones de distintos componentes en el mismo archivo. El patrón MVC recomienda que los componentes modelo, vista y controlador se encuentren bien organizados (lo que incluye separarlos en distintos archivos) para facilitar su modularización, mantenibilidad y obtener otros beneficios.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                                <%#*Panel de Referencias de métricas%>
+                                    <div class="panel panel-default">
+                                        <div class="panel-heading">
+                                            <h3 class="panel-title">Definición de las métricas</h3>
+                                        </div>
+                                        <div class="panel-body">
+                                            <div class="col-md-12">
+                                              <% if !$pdepend_metric_names.nil? %>
+                                                <% $pdepend_metric_names.each_key do |key| %>
+                                                  <p><small><%=key.upcase%>: <%= $pdepend_metric_names[key] %></small></p>
+                                                <% end %>
+                                              <% end %>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>  
+            </div>
+        </div>
+    </div>
+</body>
