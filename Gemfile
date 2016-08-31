@@ -48,3 +48,5 @@ group :development, :test do
   gem 'spring'
 end
 
+gem 'wicked_pdf'
+gem 'wkhtmltopdf-binary'
