@@ -1,6 +1,7 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-    <%= wicked_pdf_stylesheet_link_tag "nuevo" -%>
+    <%= stylesheet_link_tag wicked_pdf_asset_base64("bootstrap-theme")  -%>
+    <%= stylesheet_link_tag wicked_pdf_asset_base64("bootstrap.min")  -%>
 </head>
 <%
 def fit_metrics_to_tables(metrics)

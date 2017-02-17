@@ -1,1 +1,1 @@
-json.extract! @analyzer, :id, :directory, :lenguage, :created_at, :updated_at
+json.extract! @analyzer, :id, :cadena, :resultado, :created_at, :updated_at

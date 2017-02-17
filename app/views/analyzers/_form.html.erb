@@ -1,4 +1,4 @@
-<%= form_for @analyzer do |f| %>
+<%= form_for @analyzer, html: {class: "form-horizontal"}  do |f| %>
   <% if @analyzer.errors.any? %>
     <div id="error_explanation">
       <h2><%= pluralize(@analyzer.errors.count, "error") %> prohibited this analyzer from being saved:</h2>
@@ -11,16 +11,71 @@
     </div>
   <% end %>
 
-  <div class="field">
-    <%= f.label :directory %><br>
-    <%= f.file_field :directory, options={:webkitdirectory => "",:directory=>"",:multiple=>"true"} %>
-    <%= file_field_tag "images[]", type: :file, multiple: true, webkitdirectory: "" %>
+  <div class="row">
+      <div class="col-lg-12">
+          <section class="panel">
+              <header class="panel-heading">
+                 Analizador
+              </header>
+              <div class="panel-body">
+                    <% if !notice.nil?%>
+                      <div class="alert alert-danger alert-dismissible" role="alert">
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <strong><%= notice %></strong>
+                      </div>
+                    <% end %>
+                    <div class="form-group">
+                      <label class="col-sm-2 control-label">Patrón</label>
+                      <div class="col-sm-3">
+                          <select class="form-control m-bot15">
+                            <option>MVC</option>
+                            <option>SINGLETON</option>
+                            <option>FACTORY</option>
+                          </select>
+                      </div>
+                    </div>
+                    <div class="form-group">
+                      <label class="col-sm-2 control-label"><%= f.label :archivo %></label>
+                      <div class="col-sm-10">
+                          <%#= f.file_field :archivo %>
+                          <div class="field">
+                             <%#= f.file_field :scripts %>
+                               <%= f.file_field :scripts, options={:webkitdirectory => "",:directory=>"",:multiple=>"true"} %>
+                            <%#= file_field_tag "scripts[]", type: :file, multiple: true, webkitdirectory: "" %>
+
+                          </div>
+                      </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Analizar</button>
+              </div>
+          </section>
+      </div>
   </div>
-  <div class="field">
-    <%= f.label :lenguage %><br>
-    <%= f.text_field :lenguage %>
+<%if !@leaves.nil?%>
+  <div class="row">
+        <div class="col-lg-12">
+            <section class="panel">
+                <header class="panel-heading">
+                   Resultados del Analisis
+                </header>
+                <div class="panel-body">
+                  <% @leaves.each do |leave| %>
+                    <% leave.select { |key, value| @ky = key; @val = value } %>
+                    <%if $elementsOfController.include?(@ky.to_s) %>
+                      <blockquote>
+                        <p><%= @val[0] %>.&nbsp;&nbsp;&nbsp;<%= @rows[(@val[0].to_i - 1)] %></p>
+                        <footer>En esta linea hay un operacion que corresponde a un <b>CONTROLADOR</b></footer>
+                      </blockquote>
+                    <% elsif $elementsOfModel.include?(@ky.to_s) %>
+                      <blockquote>
+                        <p><%= @val[0] %>.&nbsp;&nbsp;&nbsp;<%= @rows[(@val[0].to_i - 1)] %></p>
+                        <footer>En esta linea hay un operacion que corresponde a un <b>MODELO</b></footer>
+                      </blockquote>
+                    <% end %>
+                  <% end %>
+                </div>
+            </section>
+        </div>
   </div>
-  <div class="actions">
-    <%= f.submit %>
-  </div>
+<%end%>
 <% end %>
