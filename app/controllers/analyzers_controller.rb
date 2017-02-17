@@ -1,7 +1,7 @@
 class AnalyzersController < ApplicationController
   before_action :set_analyzer, only: [:show, :edit, :update, :destroy]
-  require 'MVC-PHP'
-  require 'PHPDependEngine'
+  require 'MVCAnalyzer/MVCEngine'
+  require 'MetricAnalyzer/PHPDependEngine'
   #variables para controlar elementos de un controlador y un modelo
   $elementsToAnalizer = ["PDO_METHODS","PDO_STATEMENT","GET","POST","DBA_STATEMENT"]
   $elementsOfModel = ["PDO_METHODS","PDO_STATEMENT","DBA_STATEMENT"]
@@ -70,7 +70,7 @@ class AnalyzersController < ApplicationController
               end
 							if (ex_file[1] == "x-php") || (ex_file[1] == "html")
 								begin
-									sections = MvcPhp.new.getSections(file.downcase,@rows,file_original_path) #creo que es más preciso indicar la ruta completa por si hay casos donde haya archivos con el mismo nombre pero en distintas subcarpetas del proyecto
+									sections = MVCEngine.new.getSections(file.downcase,@rows,file_original_path) #creo que es más preciso indicar la ruta completa por si hay casos donde haya archivos con el mismo nombre pero en distintas subcarpetas del proyecto
                   
 									self.getStadistics(sections)
 

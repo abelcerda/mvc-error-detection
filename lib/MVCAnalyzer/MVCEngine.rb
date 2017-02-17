@@ -2,7 +2,7 @@ require_relative 'AnalyzerSection'
 require_relative 'PHPCodeAnalyzer'
 require_relative 'ruby_constant/constant'
 
-class MvcPhp
+class MVCEngine
   @leaves = []
   
   
