@@ -3,6 +3,7 @@ require File.expand_path('../boot', __FILE__)
 #require 'rails/all' # No se usa todo porque incluye ActiveRecord pero la aplicación no usará base de datos
 require 'action_controller/railtie'
 require 'action_mailer/railtie'
+require 'active_model/railtie'
 require 'sprockets/railtie'
 
 # Require the gems listed in Gemfile, including any gems
