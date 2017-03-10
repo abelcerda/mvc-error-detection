@@ -1,7 +1,7 @@
 require 'parslet'
 require 'pp'
 
-class ScriptLexer < Parslet::Parser
+class ScriptParser < Parslet::Parser
 	rule(:space)            { match('\s').repeat(1) }
 	rule(:space?)           { space.maybe }
 	rule(:eol)              { match('\n').repeat(1) }

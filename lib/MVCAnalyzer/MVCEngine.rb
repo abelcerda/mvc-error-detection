@@ -1,4 +1,4 @@
-require_relative 'AnalyzerSection'
+require_relative 'SegmentPositionTracker'
 require_relative 'PHPtoMVCTransformer'
 require_relative 'PHPCodeAnalyzer'
 require_relative 'ruby_constant/constant'
@@ -12,7 +12,7 @@ class MVCEngine
   end
 
   def getSections(code,linesCode,file_name)
-	sections_script = ScriptLexer.new.parse(code)
+	sections_script = ScriptParser.new.parse(code)
 	optimus_script = Transformio.new.apply(sections_script)
 
 	php_sections_analyzed = PhpLexer.new.parse(code)
