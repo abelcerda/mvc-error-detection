@@ -1,6 +1,6 @@
   require 'tempfile'
   require_relative 'XMLCodeAnalyzer'
-  $pdepend_command_path = './lib/phpdepend/vendor/pdepend/pdepend/src/bin/pdepend'
+  $pdepend_command_path = './lib/MetricAnalyzer/lib/phpdepend/vendor/pdepend/pdepend/src/bin/pdepend'
   $pdepend_metric_names = {
     'ahh' => 'Average Hierarchy Height',
     'andc' => 'Average Number of Derived Classes',
