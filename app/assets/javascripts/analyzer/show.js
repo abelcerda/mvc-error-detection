@@ -24,8 +24,8 @@ App.analyzer = (function() {
         },
         
         init: function() {
-        	App.analyzer.disabledBtn();
-            App.analyzer.checkFileInput();
+        	//App.analyzer.disabledBtn();
+            //App.analyzer.checkFileInput();
         }
     };
 })();

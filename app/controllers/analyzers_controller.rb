@@ -47,10 +47,12 @@ class AnalyzersController < ApplicationController
     @metrics = []
     @qty_components_type = {:model => 0, :controller => 0, :view => 0, :multi_type => 0}
 		#@analyzer = Analyzer.new(analyzer_params)
-		#puts YAML::dump(params[:analyzer][:scripts])
+		
+		param_scripts = params[:analyzer][:scripts].reject(&:blank?) unless params[:analyzer].nil?
+		
 		#puts YAML::dump(params[:images])
 		#Realizar un try catch pra la lectura de los archivos temporales.
-		if params[:analyzer][:scripts]
+		if !param_scripts.nil?
 				 
 					params[:analyzer][:scripts].each { |script|
 						#@fichero = script.read  
@@ -88,6 +90,10 @@ class AnalyzersController < ApplicationController
 							end
 							@rows = []
 					}
+		else
+			flash[:notice] = 'El directorio que se ha ingresado no contiene archivos para analizar.'
+			render 'new'
+			return
 		end
 		$stadistics = @qty_components_type
 		$lexical_analyzer = @files

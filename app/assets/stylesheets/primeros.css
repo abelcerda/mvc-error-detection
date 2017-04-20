@@ -5,3 +5,26 @@
 .table th {
    text-align: center;   
 }
+
+#container .header{
+	display: block;
+    padding-bottom: 14px;
+}
+
+#container .header .logo{
+	display: inline-block;
+}
+
+#container .header .logo img{
+	padding: 9px;
+}
+
+#container .header .titulos{
+	display: inline-block;
+    vertical-align: middle;
+    font-size: 20px;
+}
+
+#main-content .wrapper{
+	margin-top: 114px;
+}
