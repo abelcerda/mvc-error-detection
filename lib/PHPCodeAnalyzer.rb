@@ -36,7 +36,7 @@ class PhpLexer < Parslet::Parser
 
 #----------------Ternary logic----------------------
 	#rule(:ternary_logic)			{(operation >> blank >> str(")").repeat.maybe >> blank >> str("?") >> blank >> ( left_part) >> blank >> str(":") >> blank >> ( left_part)) >> blank}
-	rule(:ternary_logic)			{((class_atributte | array_one_position | string_var_name | operation | internal_function) >> blank >> str(")").repeat.maybe >> blank >> str("?") >> blank >> ( left_part) >> blank >> str(":") >> blank >> (operation | left_part)) >> blank}
+	rule(:ternary_logic)			{((class_atributte | array_one_position | string_var_name | operation | internal_function) >> blank >> str(")").repeat.maybe >> blank >> str("?") >> blank >> (operation | variable) >> blank >> str(":") >> blank >> (operation | left_part)) >> blank}
 
 	rule(:ternary_logic_param)		{str("(") >> blank >> ternary_logic >> blank >> str(")")}
 #---------------------------------------------------
@@ -104,7 +104,7 @@ class PhpLexer < Parslet::Parser
 
 	rule(:abstract_method)          { str("abstract") >> blank >> type_var_method.repeat.maybe >> blank >> str("function") >> blank >> internal_function >> blank >> str(";") >> blank }
 
-	rule(:class_instantiation)      {str("new") >> blank >> simple_string >> blank >> (str("(") >> blank >> parameters.maybe >> blank >> str(")")).maybe >> blank}
+	rule(:class_instantiation)      {((str("new") >> blank >> simple_string >> blank >> (str("(") >> blank >> parameters.maybe >> blank >> str(")")).maybe >> blank) | (parent_string >> blank >> str("(") >> blank >> parameters.maybe >> blank >> str(")") >> (blank >> str("->") >> blank >> internal_function).maybe >> blank))}
 
 	rule(:class_end_php_tag)        { (php_open >> blank >> str("}") >> blank >> str(";").maybe >> php_close) >> blank }
 	
@@ -170,8 +170,15 @@ class PhpLexer < Parslet::Parser
 #--------------------------------------------------
 
 #------------------- if ---------------------------
-	rule(:if_statement)             {( if_normal_form.as(:NORMAL_FORM) | if_short_form.as(:SHORT_FORM)) >> blank}
+	rule(:if_statement)             {( if_short_content.as(:IF_SHORT_CONTENT) | if_normal_form.as(:NORMAL_FORM) | if_short_form.as(:SHORT_FORM)) >> blank}
 #if_one_line.as(:IF_ONE_LINE) |
+	
+	rule(:if_short_content)			{(str("if") >> blank >> operation >> blank >> (one_line_statement.as(:ONE_LINE_STATEMENT)) >> blank) >> ( (elseif_short_content >> blank >>else_short_content.maybe) | else_short_content.repeat(1) ).maybe >> blank}
+
+	rule(:else_short_content)		{(str("else") >> blank >> one_line_statement.as(:ONE_LINE_STATEMENT)) >> blank}
+
+	rule(:elseif_short_content)		{(str("elseif") >> blank >> operation >> blank >> one_line_statement.as(:ONE_LINE_STATEMENT)) >> blank}
+
 	rule(:if_one_line)              {(str("if") >> blank >> operation >> blank >> str(")").repeat.maybe >> blank >> coment.as(:IF_COMENT).maybe >> blank >> str("{") )}
 	
 	rule(:else_one_line)            { str("else") >> blank >> only_sentence >> blank }
@@ -393,6 +400,9 @@ class PhpTransformer < Parslet::Transform
 	}
 	#-------------- IF ---------------------
 	rule(:IF => subtree(:x)) {
+		x
+	}
+	rule(:IF_SHORT_CONTENT => subtree(:x)) {
 		x
 	}
 	rule(:IF_ONE_LINE => subtree(:x)) {
@@ -654,13 +664,13 @@ def parse(str)
 rescue Parslet::ParseFailed => failure
   puts failure.cause.ascii_tree
 end
-=begin
+
+
 #archivo = File.read('/home/clifford/Documentos/archivos_prueba/scriptphp/Controller/controller.php')
-archivo = File.read('/home/clifford/Documentos/archivos_prueba/expRegg/class.pop3.php')
+archivo = File.read('/home/clifford/archivos_prueba/loadDays.php')
 #puts archivo.downcase
 id = parse archivo.downcase
 puts id
 puts"*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*"
 optimus = PhpTransformer.new.apply(id)
 pp optimus
-=end
