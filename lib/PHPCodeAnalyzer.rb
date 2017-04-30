@@ -37,7 +37,6 @@ class PhpLexer < Parslet::Parser
 #----------------Ternary logic----------------------
 	#rule(:ternary_logic)			{(operation >> blank >> str(")").repeat.maybe >> blank >> str("?") >> blank >> ( left_part) >> blank >> str(":") >> blank >> ( left_part)) >> blank}
 	rule(:ternary_logic)			{((class_atributte | array_one_position | string_var_name | operation | internal_function) >> blank >> str(")").repeat.maybe >> blank >> str("?") >> blank >> (operation | variable) >> blank >> str(":") >> blank >> (operation | left_part)) >> blank}
-
 	rule(:ternary_logic_param)		{str("(") >> blank >> ternary_logic >> blank >> str(")")}
 #---------------------------------------------------
 
@@ -104,7 +103,7 @@ class PhpLexer < Parslet::Parser
 
 	rule(:abstract_method)          { str("abstract") >> blank >> type_var_method.repeat.maybe >> blank >> str("function") >> blank >> internal_function >> blank >> str(";") >> blank }
 
-	rule(:class_instantiation)      {((str("new") >> blank >> simple_string >> blank >> (str("(") >> blank >> parameters.maybe >> blank >> str(")")).maybe >> blank) | (parent_string >> blank >> str("(") >> blank >> parameters.maybe >> blank >> str(")") >> (blank >> str("->") >> blank >> internal_function).maybe >> blank))}
+	rule(:class_instantiation)      {((str("new") >> blank >> simple_string >> blank >> (str("(") >> blank >> parameters.maybe >> blank >> str(")")).maybe >> blank) | (parent_string >> blank >> str("(") >> blank >> parameters.maybe >> blank >> str(")") >> (blank >> str("->") >> blank >> internal_function).repeat >> blank))}
 
 	rule(:class_end_php_tag)        { (php_open >> blank >> str("}") >> blank >> str(";").maybe >> php_close) >> blank }
 	
@@ -268,7 +267,7 @@ class PhpLexer < Parslet::Parser
 	rule(:continue)                 { str("continue") >> blank >> match("[0-9]").repeat(1).maybe >> blank }
 	rule(:var_assignment)           { left_part >> blank >> (string_op | assignment) >> blank >> rigth_part >> coment.maybe >> blank}
 	rule(:left_part)                {(internal_function | variable) }
-	rule(:rigth_part)               {str("include").maybe >> blank >>(dba_statement.as(:DBA_STATEMENT) | pdo_statement.as(:PDO_STATEMENT) | var_array.as(:ARRAY) | (ternary_logic_param | ternary_logic.as(:ternary_logic)) | operation.as(:OPERATION) | class_instantiation.as(:CLASS_INSTANTIATION) | internal_function | variable) >> blank }
+	rule(:rigth_part)               {str("include").maybe >> blank >>(dba_statement.as(:DBA_STATEMENT) | pdo_statement.as(:PDO_STATEMENT) | (ternary_logic_param | ternary_logic.as(:ternary_logic)) | operation.as(:OPERATION) | var_array.as(:ARRAY) | class_instantiation.as(:CLASS_INSTANTIATION) | internal_function | variable) >> blank }
 
 	rule(:end_of_statement)         { (str("endif") | str("endwhile") | str("endforeach") | str("endswitch") | str("endfor")) >> blank }
 	rule(:expresions)               {(((str("(").repeat.maybe >> blank >> (internal_function | array_one_position | param_class | variable) >> blank >> str(")").repeat.maybe >> blank >> operators >> blank).repeat.maybe >> blank >> str("(").repeat.maybe >> blank >> (internal_function | array_one_position | param_class | variable) >> blank >> str(")").repeat) | (((internal_function | array_one_position | param_class |variable) >> blank >> operators).repeat(1) >> blank >> (internal_function | array_one_position | param_class |variable))) >> blank }
@@ -313,9 +312,11 @@ class PhpLexer < Parslet::Parser
 
 	rule(:operation)                {(with_paren | without_paren | only_argument) >> blank}
 
-	rule(:with_paren)               { str("(") >> ((str("(").repeat.maybe >> blank >> (array_one_position | internal_function | class_atributte | cadenas | variable) >> blank >> str(")").repeat.maybe >> blank >> operators >> blank).repeat(1) >> blank >> str("(").repeat.maybe >> blank >> (array_one_position | internal_function | class_atributte | cadenas | variable) >> str(")").repeat.maybe) >> blank }
+	#rule(:operation)                {str("holamundo")}
 
-	rule(:without_paren)            { ((array_one_position | internal_function | class_atributte | cadenas | variable) >> blank >> operators >> blank).repeat(1) >> blank >> (with_paren | (array_one_position | internal_function | class_atributte | cadenas | variable))}
+	rule(:with_paren)               { str("(") >> ((str("(").repeat.maybe >> blank >> (types.maybe >> str(")")).maybe  >> blank >> (array_one_position | internal_function | class_atributte | cadenas | variable) >> blank >> str(")").repeat.maybe >> blank >> operators >> blank).repeat(1) >> blank >> str("(").repeat.maybe >> blank >> (types.maybe >> str(")")).maybe >> blank >> (array_one_position | internal_function | class_atributte | cadenas | variable) >> str(")").repeat.maybe) >> blank }
+
+	rule(:without_paren)            { language_type.maybe >> blank >> ((array_one_position | internal_function | class_atributte | cadenas | variable) >> blank >> operators >> blank).repeat(1) >> blank >> (with_paren | (array_one_position | internal_function | class_atributte | cadenas | variable))}
 
 	rule(:only_argument)            { (str("(") >> blank >> (array_one_position | internal_function | class_atributte | cadenas | variable) >> blank >> str(")")) >> blank }
 
@@ -667,7 +668,7 @@ end
 
 
 #archivo = File.read('/home/clifford/Documentos/archivos_prueba/scriptphp/Controller/controller.php')
-archivo = File.read('/home/clifford/archivos_prueba/loadDays.php')
+archivo = File.read('/home/clifford/archivos_prueba/test.php')
 #puts archivo.downcase
 id = parse archivo.downcase
 puts id
