@@ -71,15 +71,15 @@ class AnalyzersController < ApplicationController
 							if (ex_file[1] == "x-php") || (ex_file[1] == "html")
 								begin
 									sections = MVCEngine.new.getSections(file.downcase,@rows,file_original_path) #creo que es más preciso indicar la ruta completa por si hay casos donde haya archivos con el mismo nombre pero en distintas subcarpetas del proyecto
-                  
-									self.getStadistics(sections)
+                  self.getStadistics(sections)
 
                   (!@analyzed_metrics.nil? && !@analyzed_metrics.empty?)? 
                     sections[:metrics] = @analyzed_metrics : 
                     FALSE # generar algún mensaje cuando no hay métricas para ese archivo
 									@files.push(sections)
-								rescue
+								rescue => e
 									puts "se ha producido una excepcion. ------>"+file_name.to_s
+                  pp e.to_s
 								end
 							else
 								if ex_file[1] == "x-trash"
@@ -90,10 +90,10 @@ class AnalyzersController < ApplicationController
 					}
 		end
 		$stadistics = @qty_components_type
-		$lexical_analyzer = @files
+		$results = @files
 		respond_to do |format|
 			if @files.nil?
-				format.html { redirect_to @analyzer, notice: 'Se ha analizado ocn exito todos sus archivos' }
+				format.html { redirect_to @analyzer, notice: 'Se ha analizado con éxito todos sus archivos' }
 				format.json { render :new, status: :created, location: @analyzer }
 			else
 				format.html { render :show }

@@ -43,7 +43,7 @@ end
 										<tbody>
 											<tr>
 												<td colspan="2" align="center">
-													<span>Archivos Analizados:</span>&nbsp;<span><b><%=$lexical_analyzer.length%></b></span>
+													<span>Archivos Analizados:</span>&nbsp;<span><b><%=$results.length%></b></span>
 												</td>
 											</tr>
 											<tr>
@@ -69,7 +69,7 @@ end
 							</div>
 						</div>
 					</div>
-					<% $lexical_analyzer.each_with_index do |la,index| %>
+					<% $results.each_with_index do |la,index| %>
 					  <div class="panel-group show_results" id="accordion_<%= index+1%>" role="tablist" aria-multiselectable="true">
 						  <div class="panel panel-default">
 						    <div class="panel-heading" role="tab" id="heading_<%= index+1 %>">
