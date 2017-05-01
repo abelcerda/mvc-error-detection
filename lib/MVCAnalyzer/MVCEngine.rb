@@ -12,9 +12,8 @@ class MVCEngine
   end
 
   def getSections(code,linesCode,file_name)
-	sections_script = ScriptParser.new.parse(code)
+    sections_script = ScriptParser.new.parse(code)
 	optimus_script = Transformio.new.apply(sections_script)
-
 	php_sections_analyzed = PhpLexer.new.parse(code)
 	php_sections_transform = PHPtoMVCTransformer.new.apply(php_sections_analyzed)
  	#puts"-----------------------------"
