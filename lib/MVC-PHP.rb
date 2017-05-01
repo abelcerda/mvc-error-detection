@@ -87,6 +87,9 @@ class MvcPhp
 		when "GET"
 			cad = self.makeCommonActions('$_get',cad_aux,col)
 			self.verifyOperation('controller')
+		when "REQUEST"
+			cad = self.makeCommonActions('$_request',cad_aux,col)
+			self.verifyOperation('controller')
 		when "PDO_STATEMENT"  
 			cad = self.makeCommonActions('new pdo',cad_aux,col)
 			self.verifyOperation('model')

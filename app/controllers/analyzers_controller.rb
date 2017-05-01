@@ -5,7 +5,7 @@ class AnalyzersController < ApplicationController
   #variables para controlar elementos de un controlador y un modelo
   $elementsToAnalizer = ["PDO_METHODS","PDO_STATEMENT","GET","POST","DBA_STATEMENT"]
   $elementsOfModel = ["PDO_METHODS","PDO_STATEMENT","DBA_STATEMENT"]
-  $elementsOfController = ["GET","POST"]
+  $elementsOfController = ["GET","POST","REQUEST"]
   # GET /analyzers
   # GET /analyzers.json
   def index

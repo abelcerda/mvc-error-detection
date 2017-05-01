@@ -172,23 +172,23 @@ class PhpLexer < Parslet::Parser
 	rule(:if_statement)             {( if_short_content.as(:IF_SHORT_CONTENT) | if_normal_form.as(:NORMAL_FORM) | if_short_form.as(:SHORT_FORM)) >> blank}
 #if_one_line.as(:IF_ONE_LINE) |
 	
-	rule(:if_short_content)			{(str("if") >> blank >> operation >> blank >> (one_line_statement.as(:ONE_LINE_STATEMENT)) >> blank) >> ( (elseif_short_content >> blank >>else_short_content.maybe) | else_short_content.repeat(1) ).maybe >> blank}
+	rule(:if_short_content)			{(str("if") >> blank >> (operation | only_argument) >> blank >> (one_line_statement.as(:ONE_LINE_STATEMENT)) >> blank) >> ( (elseif_short_content >> blank >>else_short_content.maybe) | else_short_content.repeat(1) ).maybe >> blank}
 
 	rule(:else_short_content)		{(str("else") >> blank >> one_line_statement.as(:ONE_LINE_STATEMENT)) >> blank}
 
 	rule(:elseif_short_content)		{(str("elseif") >> blank >> operation >> blank >> one_line_statement.as(:ONE_LINE_STATEMENT)) >> blank}
 
-	rule(:if_one_line)              {(str("if") >> blank >> operation >> blank >> str(")").repeat.maybe >> blank >> coment.as(:IF_COMENT).maybe >> blank >> str("{") )}
+	rule(:if_one_line)              {(str("if") >> blank >> (operation | only_argument) >> blank >> str(")").repeat.maybe >> blank >> coment.as(:IF_COMENT).maybe >> blank >> str("{") )}
 	
 	rule(:else_one_line)            { str("else") >> blank >> only_sentence >> blank }
 
-	rule(:if_normal_form)           {(str("if") >> blank >> operation >> blank >> str("{") >> blank >> ((php_close >> blank >> content_ctrl_struct.repeat >> blank >> php_open >> blank >> (str("break;").as(:BREAK) | php_code).maybe >> blank >> ((str("}") >> blank >> (else_tag_php_normal | else_normal_form)) | (str("}") >> blank >> php_close) | (str("}")) | ((if_elseIf_normal | ((str("elseif") | str("else if")) >> blank >> operation >> blank >> str("{") >> blank >> (str("break;").as(:BREAK) | php_code) >> blank >> str("}") >> blank >> else_normal_form.maybe >> blank) | else_normal_form | else_one_line)).repeat.maybe)) | ((str("break;").as(:BREAK) | php_code).maybe >> blank >> str("}") >> blank >> coment.maybe >> blank >> ((if_elseIf_normal) | ((str("elseif") | str("else if")) >> blank >> operation >> blank >> str("{") >> blank >> (str("break;").as(:BREAK) | php_code) >> blank >> str("}") >> blank >> else_normal_form.maybe >> blank) | (else_tag_php_normal | else_normal_form) | else_one_line).repeat.maybe))) >> blank}
+	rule(:if_normal_form)           {(str("if") >> blank >> (operation | only_argument) >> blank >> str("{") >> blank >> ((php_close >> blank >> content_ctrl_struct.repeat >> blank >> php_open >> blank >> (str("break;").as(:BREAK) | php_code).maybe >> blank >> ((str("}") >> blank >> (else_tag_php_normal | else_normal_form)) | (str("}") >> blank >> php_close) | (str("}")) | ((if_elseIf_normal | ((str("elseif") | str("else if")) >> blank >> (operation | only_argument) >> blank >> str("{") >> blank >> (str("break;").as(:BREAK) | php_code) >> blank >> str("}") >> blank >> else_normal_form.maybe >> blank) | else_normal_form | else_one_line)).repeat.maybe)) | ((str("break;").as(:BREAK) | php_code).maybe >> blank >> str("}") >> blank >> coment.maybe >> blank >> ((if_elseIf_normal) | ((str("elseif") | str("else if")) >> blank >> (operation | only_argument) >> blank >> str("{") >> blank >> (str("break;").as(:BREAK) | php_code) >> blank >> str("}") >> blank >> else_normal_form.maybe >> blank) | (else_tag_php_normal | else_normal_form) | else_one_line).repeat.maybe))) >> blank}
 
-	rule(:if_short_form)            {(str("if") >> blank >> operation >> blank >> str(":") >> blank >> ((php_close >> blank >> content_ctrl_struct.repeat >> blank >> php_open >> blank >> (str("break;").as(:BREAK) | php_code).maybe >> blank >> (((else_tag_php_short | else_short_form)) | (str("endif;") >> blank >> php_close) | (str("endif;")) | ((if_elseIf_short | ((str("elseif") | str("else if")) >> blank >> operation >> blank >> str(":") >> blank >> (str("break;").as(:BREAK) | php_code) >> blank >> str("endif;") >> blank >> else_short_form.maybe >> blank) | else_short_form | else_one_line)).repeat.maybe)) | ((str("break;").as(:BREAK) | php_code).maybe >> blank >> coment.maybe >> blank >> ( str("endif;") | (((if_elseIf_short) | ((str("elseif") | str("else if")) >> blank >> operation >> blank >> str(":") >> blank >> (str("break;").as(:BREAK) | php_code) >> blank >> str("endif;") >> blank >> else_short_form.maybe >> blank) | (else_tag_php_short | else_short_form) | else_one_line).repeat.maybe))))) >> blank}
+	rule(:if_short_form)            {(str("if") >> blank >> (operation | only_argument) >> blank >> str(":") >> blank >> ((php_close >> blank >> content_ctrl_struct.repeat >> blank >> php_open >> blank >> (str("break;").as(:BREAK) | php_code).maybe >> blank >> (((else_tag_php_short | else_short_form)) | (str("endif;") >> blank >> php_close) | (str("endif;")) | ((if_elseIf_short | ((str("elseif") | str("else if")) >> blank >> (operation | only_argument) >> blank >> str(":") >> blank >> (str("break;").as(:BREAK) | php_code) >> blank >> str("endif;") >> blank >> else_short_form.maybe >> blank) | else_short_form | else_one_line)).repeat.maybe)) | ((str("break;").as(:BREAK) | php_code).maybe >> blank >> coment.maybe >> blank >> ( str("endif;") | (((if_elseIf_short) | ((str("elseif") | str("else if")) >> blank >> (operation | only_argument) >> blank >> str(":") >> blank >> (str("break;").as(:BREAK) | php_code) >> blank >> str("endif;") >> blank >> else_short_form.maybe >> blank) | (else_tag_php_short | else_short_form) | else_one_line).repeat.maybe))))) >> blank}
 
-	rule(:if_elseIf_normal)         {(str("elseif") | str("else if")) >> blank >> operation >> blank >> str("{") >> blank >> php_close >> blank >> (content_ctrl_struct).repeat >> blank >> ((php_open >> (str("break;").as(:BREAK) | (one_line_statement | control_structure).repeat) >> blank >> ((str("}") >> blank >> else_tag_php_normal) | (str("}") >> blank >> (php_close | eof)))) | ((php_open >> blank >> str("}") >> blank >> else_tag_php_normal) | if_normal_end)) >> blank }
+	rule(:if_elseIf_normal)         {(str("elseif") | str("else if")) >> blank >> (operation | only_argument) >> blank >> str("{") >> blank >> php_close >> blank >> (content_ctrl_struct).repeat >> blank >> ((php_open >> (str("break;").as(:BREAK) | (one_line_statement | control_structure).repeat) >> blank >> ((str("}") >> blank >> else_tag_php_normal) | (str("}") >> blank >> (php_close | eof)))) | ((php_open >> blank >> str("}") >> blank >> else_tag_php_normal) | if_normal_end)) >> blank }
 	
-	rule(:if_elseIf_short)          {(str("elseif") | str("else if")) >> blank >> operation >> blank >> str(":") >> blank >> php_close >> blank >> (content_ctrl_struct).repeat >> blank >> ((php_open >> (str("break;").as(:BREAK) | (one_line_statement | control_structure).repeat) >> blank >> ((else_tag_php_short) | (str("endif;") >> blank >> (php_close | eof)))) | ((php_open >> blank >> str("endif;") >> blank >> else_tag_php_short) | if_short_end)) >> blank}
+	rule(:if_elseIf_short)          {(str("elseif") | str("else if")) >> blank >> (operation | only_argument) >> blank >> str(":") >> blank >> php_close >> blank >> (content_ctrl_struct).repeat >> blank >> ((php_open >> (str("break;").as(:BREAK) | (one_line_statement | control_structure).repeat) >> blank >> ((else_tag_php_short) | (str("endif;") >> blank >> (php_close | eof)))) | ((php_open >> blank >> str("endif;") >> blank >> else_tag_php_short) | if_short_end)) >> blank}
 	
 	rule(:else_tag_php_short)       {(str("else") >> blank >> str(":") >> blank >> php_close >> blank >> (str("break;").as(:BREAK) | (content_ctrl_struct).repeat) >> blank >> (if_short_end | (php_open >> blank >> (str("break;").as(:BREAK) | (one_line_statement | control_structure).repeat) >> blank >> str("endif;") >> blank >> (php_close | eof))) >> blank)}
 
@@ -222,8 +222,10 @@ class PhpLexer < Parslet::Parser
 
 
 #-------------------- ForEach ---------------------
-	rule(:foreach_statement)        {(feach_normal_syntax.as(:FOREACH_NORMAL_SYNTAX) | feach_alternative_syntax.as(:FOREACH_ALTERNATIVE_SYNTAX)) >> blank}
+	rule(:foreach_statement)        {(foreach_one_sentence.as(:FOREACH_ONE_SENTENCE) | feach_normal_syntax.as(:FOREACH_NORMAL_SYNTAX) | feach_alternative_syntax.as(:FOREACH_ALTERNATIVE_SYNTAX)) >> blank}
 	
+	rule(:foreach_one_sentence)		{ str("foreach") >> blank >> str("(") >> blank >> (var_array.as(:ARRAY) | variable) >> blank >> str("as") >> blank >> value_foreach >> blank >> str(")") >> blank >> one_line_statement.as(:ONE_LINE_STATEMENT) >> blank}
+
 	rule(:foreach_content)          { (var_array.as(:ARRAY) | variable) >> blank >> str("as") >> blank >> value_foreach >> blank }
 	
 	rule(:feach_alternative_syntax) { str("foreach") >> blank >> str("(") >> blank >> (var_array.as(:ARRAY) | variable) >> blank >> str("as") >> blank >> value_foreach >> blank >> str(")") >> blank >> str(":") >> blank >> ((php_close >> blank >> (content_ctrl_struct).repeat >> blank >> (php_open >> ((one_line_statement >> blank >> foreach_alternative_end) | foreach_alternative_end))) | (php_code >> blank >> str("endforeach;"))) >> blank }
@@ -233,7 +235,7 @@ class PhpLexer < Parslet::Parser
 	rule(:var_array)                { ((language_type).maybe >> blank >> (array_multiple_positions.as(:ARRAY_MULTIPLE_POSITIONS) | array_one_position.as(:ARRAY_ONE_POSITION))) >> blank }
 
 	rule(:array_multiple_positions) { (str("array") >> blank >> str("(") >> blank >> (array_content | variable) >> blank >> str(")")) >> blank }
-	rule(:array_one_position)       { ((postToken.as(:POST) | getToken.as(:GET) | str("array") | parent_string | simple_string) >> (str("[") >> blank >> (operation | internal_function | class_atributte | cadenas | variable).maybe >> blank >> str("]")).repeat(1)) >> blank }
+	rule(:array_one_position)       { ((postToken.as(:POST) | getToken.as(:GET) | requestToken.as(:REQUEST) | str("array") | parent_string | simple_string) >> (str("[") >> blank >> (operation | internal_function | class_atributte | cadenas | variable).maybe >> blank >> str("]")).repeat(1)) >> blank }
 
 	rule(:array_content)            { asociative_array.as(:ASOC_ARRAY) | elements_array.as(:SIMPLE_ARRAY) }
 	
@@ -241,7 +243,7 @@ class PhpLexer < Parslet::Parser
 	
 	rule(:value_foreach)            { (asociative_array | variable) }
 	
-	rule(:asociative_array)         { ((class_atributte | cadenas | simple_string) >> blank >> str("=>") >> blank >> (class_atributte | var_array | internal_function | operation | variable) >> blank >> str(",") >> ((blank >> coment >> blank) | blank)).repeat.maybe >> (((class_atributte | cadenas | simple_string) >> blank >> str("=>") >> blank >> (var_array | internal_function | operation | variable)) | (var_array | internal_function | operation | variable)) >> blank }
+	rule(:asociative_array)         { ((class_atributte | cadenas | simple_string) >> blank >> str("=>") >> blank >> (class_atributte | var_array | internal_function | (operation | only_argument) | variable) >> blank >> str(",") >> ((blank >> coment >> blank) | blank)).repeat.maybe >> (((class_atributte | cadenas | simple_string) >> blank >> str("=>") >> blank >> (var_array | internal_function | (operation | only_argument) | variable)) | (var_array | internal_function | (operation | only_argument) | variable)) >> blank }
 
 	rule(:foreach_normal_end)       {(str("}") >> blank >> str(";").maybe >> blank >> coment.maybe >> blank >> (php_close | eof)) >> blank}
 	
@@ -267,14 +269,14 @@ class PhpLexer < Parslet::Parser
 	rule(:continue)                 { str("continue") >> blank >> match("[0-9]").repeat(1).maybe >> blank }
 	rule(:var_assignment)           { left_part >> blank >> (string_op | assignment) >> blank >> rigth_part >> coment.maybe >> blank}
 	rule(:left_part)                {(internal_function | variable) }
-	rule(:rigth_part)               {str("include").maybe >> blank >>(dba_statement.as(:DBA_STATEMENT) | pdo_statement.as(:PDO_STATEMENT) | (ternary_logic_param | ternary_logic.as(:ternary_logic)) | operation.as(:OPERATION) | var_array.as(:ARRAY) | class_instantiation.as(:CLASS_INSTANTIATION) | internal_function | variable) >> blank }
+	rule(:rigth_part)               {str("include").maybe >> blank >>(dba_statement.as(:DBA_STATEMENT) | pdo_statement.as(:PDO_STATEMENT) | (ternary_logic_param | ternary_logic.as(:ternary_logic)) | (operation.as(:OPERATION) | only_argument) | var_array.as(:ARRAY) | class_instantiation.as(:CLASS_INSTANTIATION) | internal_function | variable) >> blank }
 
 	rule(:end_of_statement)         { (str("endif") | str("endwhile") | str("endforeach") | str("endswitch") | str("endfor")) >> blank }
 	rule(:expresions)               {(((str("(").repeat.maybe >> blank >> (internal_function | array_one_position | param_class | variable) >> blank >> str(")").repeat.maybe >> blank >> operators >> blank).repeat.maybe >> blank >> str("(").repeat.maybe >> blank >> (internal_function | array_one_position | param_class | variable) >> blank >> str(")").repeat) | (((internal_function | array_one_position | param_class |variable) >> blank >> operators).repeat(1) >> blank >> (internal_function | array_one_position | param_class |variable))) >> blank }
 
-	rule(:variable)                 { (negative_expresion | (class_atributte | cadenas | array_one_position | internal_function | parent_string | simple_string | negative_decimal_numbers)) >> blank }
+	rule(:variable)                 { language_type.maybe >> blank >> (negative_expresion | (class_atributte | cadenas | array_one_position | internal_function | parent_string | simple_string | negative_decimal_numbers)) >> blank }
 	rule(:negative_expresion)		{ (str("-") >> blank >> str("(").maybe >> (operation | class_atributte | var_array.as(:ARRAY_PARAM) | internal_function.as(:INT_FUNC_PARAM) | param_class | variable) >> str(")").maybe >> blank)}
-	rule(:class_atributte)          { (language_type).maybe >> blank >> (array_one_position | simple_string) >> (str("->") >> (pdo_methods.as(:PDO_METHODS) | internal_function | array_one_position | simple_string)).repeat(1) >> blank}
+	rule(:class_atributte)          { (language_type).maybe >> blank >> (array_one_position | simple_string) >> (str("->") >> (pdo_methods.as(:PDO_METHODS) | internal_function | array_one_position | simple_string) >> blank >> coment.maybe).repeat(1) >> blank}
 	#rule(:class_atributte)          { simple_string >> (str("->") >> (pdo_methods.as(:PDO_METHODS) | internal_function | array_one_position | simple_string)).repeat(1) >> blank}
 
 	rule(:simple_string)            { match("[a-zA-Z0-9/$@!?&_]").repeat(1) >> blank}
@@ -310,19 +312,19 @@ class PhpLexer < Parslet::Parser
 
 	rule(:internal_function)        { ((language_type).maybe >> blank >> (str("parent::__construct") | dba_statement.as(:DBA_STATEMENT) | parent_string | simple_string) >> blank >> str("(") >> blank >> (ternary_logic | parameters).maybe >> blank >> str(")").maybe) >> blank }
 
-	rule(:operation)                {(with_paren | without_paren | only_argument) >> blank}
+	rule(:operation)                {(with_paren | without_paren) >> blank}
 
 	#rule(:operation)                {str("holamundo")}
 
 	rule(:with_paren)               { str("(") >> ((str("(").repeat.maybe >> blank >> (types.maybe >> str(")")).maybe  >> blank >> (array_one_position | internal_function | class_atributte | cadenas | variable) >> blank >> str(")").repeat.maybe >> blank >> operators >> blank).repeat(1) >> blank >> str("(").repeat.maybe >> blank >> (types.maybe >> str(")")).maybe >> blank >> (array_one_position | internal_function | class_atributte | cadenas | variable) >> str(")").repeat.maybe) >> blank }
 
-	rule(:without_paren)            { language_type.maybe >> blank >> ((array_one_position | internal_function | class_atributte | cadenas | variable) >> blank >> operators >> blank).repeat(1) >> blank >> (with_paren | (array_one_position | internal_function | class_atributte | cadenas | variable))}
+	rule(:without_paren)            { (language_type.maybe >> blank >> (array_one_position | internal_function | class_atributte | cadenas | variable) >> blank >> operators >> blank).repeat(1) >> blank >> (with_paren | (array_one_position | internal_function | class_atributte | cadenas | variable))}
 
-	rule(:only_argument)            { (str("(") >> blank >> (array_one_position | internal_function | class_atributte | cadenas | variable) >> blank >> str(")")) >> blank }
+	rule(:only_argument)            { (str("(").repeat(1) >> blank >> (array_one_position | internal_function | class_atributte | cadenas | variable) >> blank >> str(")").repeat(1)) >> blank }
 
 	rule(:parameters)               {(((negative_expresion | parameters_type_data | parameters_available) >> blank >> str(",") >> blank >> coment.maybe).repeat.maybe >> blank >> coment.maybe >> blank >> (negative_expresion | parameters_type_data | parameters_available)) >> blank >> coment.maybe >> blank }
 
-	rule(:parameters_available)		{(ternary_logic_param | operation | class_atributte | var_array.as(:ARRAY_PARAM) | internal_function.as(:INT_FUNC_PARAM) | param_class | variable) >> blank}
+	rule(:parameters_available)		{(ternary_logic_param | (operation | only_argument) | class_atributte | var_array.as(:ARRAY_PARAM) | internal_function.as(:INT_FUNC_PARAM) | param_class | variable) >> blank}
 	
 	rule(:parameters_type_data)		{ (language_type >> blank >> parameters_available) >> blank }
 	
@@ -345,6 +347,11 @@ class PhpLexer < Parslet::Parser
 	def pdoInstance
 		instance = str(Variables.new.getPdoInstance())
 		instance
+	end
+
+	def requestToken
+		request = str(Variables.new.getRequestToken())
+		request
 	end
 
 	def getToken
@@ -504,6 +511,9 @@ class PhpTransformer < Parslet::Transform
 	rule(:FOREACH => subtree(:x)) {
 		x
 	}
+	rule(:FOREACH_ONE_SENTENCE => subtree(:x)){
+		x
+	}
 	rule(:FOREACH_NORMAL_SYNTAX => subtree(:x)) {
 		x
 	}
@@ -652,6 +662,12 @@ class PhpTransformer < Parslet::Transform
 	rule(:GET => simple(:x)) {
 		resp = {}
 		resp[:GET]= x.line_and_column      
+		resp
+	}
+
+	rule(:REQUEST => simple(:x)) {
+		resp = {}
+		resp[:REQUEST]= x.line_and_column      
 		resp
 	}
 

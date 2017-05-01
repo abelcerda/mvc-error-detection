@@ -1,7 +1,7 @@
 require_relative 'PHPCodeAnalyzer'
 
 class PHPCodeAnalyzer
-  $elementsToAnalizer = ["PDO_METHODS","PDO_STATEMENT","GET","POST","DBA_STATEMENT"]
+  $elementsToAnalizer = ["PDO_METHODS","PDO_STATEMENT","GET","POST","REQUEST","DBA_STATEMENT"]
 
   def runPHP(stack,offset)
     @leaves = []

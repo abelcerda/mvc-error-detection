@@ -25,6 +25,8 @@ class Variables
 		@get = "$_get"
 
 		@post = "$_post"
+
+		@request = "$_request"
 	end 
 
   def getPdoMethods
@@ -47,5 +49,9 @@ class Variables
   	@post
   end
 
-  public :getPdoMethods,:getPdoInstance,:getDbaMethods,:getGetToken,:getPostToken
+  def getRequestToken
+  	@request
+  end
+
+  public :getPdoMethods,:getPdoInstance,:getDbaMethods,:getGetToken,:getPostToken,:getRequestToken
 end
