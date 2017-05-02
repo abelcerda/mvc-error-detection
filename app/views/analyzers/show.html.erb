@@ -33,7 +33,7 @@ end
 				<div class="col-md-12">
 					<div class="panel panel-default">
 						<div class="panel-heading">
-							<h3 class="panel-title">Estadisticas</h3>
+							<h3 class="panel-title">Estadísticas</h3>
 						</div>
 						<div class="panel-body">
 							<div class="col-md-12">
@@ -43,7 +43,7 @@ end
 										<tbody>
 											<tr>
 												<td colspan="2" align="center">
-													<span>Archivos Analizados:</span>&nbsp;<span><b><%=$lexical_analyzer.length%></b></span>
+													<span>Archivos analizados:</span>&nbsp;<span><b><%=$results.length%></b></span>
 												</td>
 											</tr>
 											<tr>
@@ -51,12 +51,12 @@ end
 													<span>Modelos encontrados:</span>&nbsp;<span><b><%=$stadistics[:model]%></b></span>
 												</td>
 												<td>
-													<span>Vistas enontradas:</span>&nbsp;<span><b><%=$stadistics[:view]%></b></span>
+													<span>Vistas encontradas:</span>&nbsp;<span><b><%=$stadistics[:view]%></b></span>
 												</td>
 											</tr>
 											<tr>
 												<td>
-													<span>Controladores enontrados:</span>&nbsp;<span><b><%=$stadistics[:controller]%></b></span>
+													<span>Controladores encontrados:</span>&nbsp;<span><b><%=$stadistics[:controller]%></b></span>
 												</td>
 												<td>
 													<span>Archivos con operaciones de distinto tipo:</span>&nbsp;<span><b><%=$stadistics[:multi_type]%></b></span>
@@ -69,7 +69,7 @@ end
 							</div>
 						</div>
 					</div>
-					<% $lexical_analyzer.each_with_index do |la,index| %>
+					<% $results.each_with_index do |la,index| %>
 					  <div class="panel-group show_results" id="accordion_<%= index+1%>" role="tablist" aria-multiselectable="true">
 						  <div class="panel panel-default">
 						    <div class="panel-heading" role="tab" id="heading_<%= index+1 %>">
@@ -97,12 +97,12 @@ end
 													<% if !(l[:token] == 'html') %>
 														<pre><%=l[:line_number]%>.&nbsp;<%= l[:line_code].html_safe %></pre>
 														<% if $elementsOfController.include?(l[:token].to_s) %>
-															<p>En la columna <%=l[:column_number]%> de esta linea hay un elemento que debería estar en un: <b id="tooltip_controller" data-toggle="tooltip" data-placement="bottom" title="">CONTROLADOR</b></p>
+															<p>En la columna <%=l[:column_number]%> de esta línea hay un elemento que debería estar en un: <b id="tooltip_controller" data-toggle="tooltip" data-placement="bottom" title="">CONTROLADOR</b></p>
 														<% elsif $elementsOfModel.include?(l[:token].to_s) %>
-															<p>En la columna <%=l[:column_number]%> de esta linea hay un elemento debería estar en un: <b id="tooltip_model" data-toggle="tooltip" data-placement="bottom" title="">MODELO</b></span></p>
+															<p>En la columna <%=l[:column_number]%> de esta línea hay un elemento debería estar en un: <b id="tooltip_model" data-toggle="tooltip" data-placement="bottom" title="">MODELO</b></span></p>
 														<%end%>
 													<% else %>
-														<pre>Esta secccion corresponde a una vista a partir de la linea <%=l[:line_number]%>.</pre>
+														<pre>Esta sección corresponde a una vista a partir de la línea <%=l[:line_number]%>.</pre>
 													<% end %>
 												<% end %>
 											<% end %>
@@ -122,7 +122,7 @@ end
 										<% end %>
 										<% if more_than_one_component_type(la[:operation]) %>
                                                                                   <div class="alert alert-danger" id="error-operations" data-toggle="tooltip" data-container="body" data-placement="left" title="El patrón MVC recomienda que un archivo tenga solo un tipo de componente."> 
-                                                                                    ERROR: Se encontraron operaciones de distintos tipos en el mismo archivo (
+                                                                                    ERROR: Se encontraron operaciones de distintos componentes MVC en el mismo archivo (
                                                                                     <% if la[:operation][:model]%>Modelo<% end %>
                                                                                     <% if la[:operation][:view]%>
                                                                                       <% if la[:operation][:model] && la[:operation][:controller]%>, <% end %>

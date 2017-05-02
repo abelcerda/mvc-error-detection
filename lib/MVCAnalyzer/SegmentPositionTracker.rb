@@ -1,7 +1,7 @@
 require 'parslet'
 require 'pp'
 
-class ScriptLexer < Parslet::Parser
+class ScriptParser < Parslet::Parser
 	rule(:space)            { match('\s').repeat(1) }
 	rule(:space?)           { space.maybe }
 	rule(:eol)              { match('\n').repeat(1) }
@@ -35,22 +35,3 @@ class Transformio < Parslet::Transform
 	}
 
 end
-
-=begin
-def parse(str)
-  mini = ScriptLexer.new
-
-  mini.parse(str)
-rescue Parslet::ParseFailed => failure
-  puts failure.cause.ascii_tree
-end
-
-
-archivo = File.read('/home/clifford/Documentos/archivos_prueba/expRegg/classphpmailer22.php')
-
-id = parse archivo.downcase
-puts id
-puts"*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*"
-optimus = Transformio.new.apply(id)
-pp optimus
-=end
