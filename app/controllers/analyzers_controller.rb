@@ -10,6 +10,7 @@ class AnalyzersController < ApplicationController
   # GET /analyzers.json
   def index
 #    @analyzers = Analyzer.all
+    redirect_to action: "new"
   end
 
 	# GET /analyzers/1
