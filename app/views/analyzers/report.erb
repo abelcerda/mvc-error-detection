@@ -114,12 +114,12 @@ def more_than_one_component_type(operations)
                                                                 <% if !(l[:token] == 'html') %>
                                                                   <pre><%=l[:line_number]%>.&nbsp;<%= l[:line_code].html_safe %></pre>
                                                                   <% if $elementsOfController.include?(l[:token].to_s) %>
-                                                                    <p>En la columna <%=l[:column_number]%> de esta linea hay un elemento que debería estar en un: <b id="tooltip_controller" data-toggle="tooltip" data-placement="bottom" title="laksjhdfkljahsdlkfjhkjsdhf">CONTROLADOR</b></p>
+                                                                    <p>En la columna <%=l[:column_number]%> de esta línea hay un elemento que debería estar en un: <b id="tooltip_controller" data-toggle="tooltip" data-placement="bottom" title="laksjhdfkljahsdlkfjhkjsdhf">CONTROLADOR</b></p>
                                                                   <% elsif $elementsOfModel.include?(l[:token].to_s) %>
-                                                                    <p>En la columna <%=l[:column_number]%> de esta linea hay un elemento debería estar en un: <b id="tooltip_model" data-toggle="tooltip" data-placement="bottom" title="ajsdlkjfahslkdjhflasd">MODELO</b></span></p>
+                                                                    <p>En la columna <%=l[:column_number]%> de esta línea hay un elemento debería estar en un: <b id="tooltip_model" data-toggle="tooltip" data-placement="bottom" title="ajsdlkjfahslkdjhflasd">MODELO</b></span></p>
                                                                   <%end%>
                                                                 <% else %>
-                                                                  <pre>Esta secccion corresponde a una vista a partir de la linea <%=l[:line_number]%>.</pre>
+                                                                  <pre>Esta sección corresponde a una vista a partir de la línea <%=l[:line_number]%>.</pre>
                                                                 <% end %>
                                                               <% end %>
                                                             <% end %>
@@ -139,7 +139,7 @@ def more_than_one_component_type(operations)
                                                           <% end %>
                                                           <% if more_than_one_component_type(la[:operation]) %>
                                                             <div class="alert alert-danger" id="error-operations" data-toggle="tooltip" data-container="body" data-placement="left" title=""> 
-                                                                ATENCIÓN: Se encontraron operaciones de distintos tipos en el mismo archivo (
+                                                                ATENCIÓN: Se encontraron operaciones de distintos componentes MVC en el mismo archivo (
                                                                 <% if la[:operation][:model]%>Modelo<% end %>
                                                                 <% if la[:operation][:view]%>
                                                                   <% if la[:operation][:model] && la[:operation][:controller]%>, <% end %>

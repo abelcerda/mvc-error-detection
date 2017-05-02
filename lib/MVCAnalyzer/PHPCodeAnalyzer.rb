@@ -35,7 +35,6 @@ class PhpLexer < Parslet::Parser
 #----------------Ternary logic----------------------
 	#rule(:ternary_logic)			{(operation >> blank >> str(")").repeat.maybe >> blank >> str("?") >> blank >> ( left_part) >> blank >> str(":") >> blank >> ( left_part)) >> blank}
 	rule(:ternary_logic)			{((class_atributte | array_one_position | string_var_name | operation | internal_function) >> blank >> str(")").repeat.maybe >> blank >> str("?") >> blank >> (operation | variable) >> blank >> str(":") >> blank >> (operation | left_part)) >> blank}
-	
 	rule(:ternary_logic_param)		{str("(") >> blank >> ternary_logic >> blank >> str(")")}
 #---------------------------------------------------
 
@@ -102,9 +101,9 @@ class PhpLexer < Parslet::Parser
 
 	rule(:abstract_method)          { str("abstract") >> blank >> type_var_method.repeat.maybe >> blank >> str("function") >> blank >> internal_function >> blank >> str(";") >> blank }
 
-	rule(:class_instantiation)      {str("new") >> blank >> simple_string >> blank >> (str("(") >> blank >> parameters.maybe >> blank >> str(")")).maybe >> blank}
-
 	rule(:class_instantiation)      {((str("new") >> blank >> simple_string >> blank >> (str("(") >> blank >> parameters.maybe >> blank >> str(")")).maybe >> blank) | (parent_string >> blank >> str("(") >> blank >> parameters.maybe >> blank >> str(")") >> (blank >> str("->") >> blank >> internal_function).repeat >> blank))}
+
+	rule(:class_end_php_tag)        { (php_open >> blank >> str("}") >> blank >> str(";").maybe >> php_close) >> blank }
 	
 	rule(:class_end)                { (str("}") >> blank >> str(";").maybe >> php_close) >> blank }
 #--------------------------------------------------
@@ -223,7 +222,7 @@ class PhpLexer < Parslet::Parser
 #-------------------- ForEach ---------------------
 	rule(:foreach_statement)        {(foreach_one_sentence.as(:FOREACH_ONE_SENTENCE) | feach_normal_syntax.as(:FOREACH_NORMAL_SYNTAX) | feach_alternative_syntax.as(:FOREACH_ALTERNATIVE_SYNTAX)) >> blank}
 	
-  rule(:foreach_one_sentence)		{ str("foreach") >> blank >> str("(") >> blank >> (var_array.as(:ARRAY) | variable) >> blank >> str("as") >> blank >> value_foreach >> blank >> str(")") >> blank >> ( if_short_content | one_line_statement.as(:ONE_LINE_STATEMENT)) >> blank}
+	rule(:foreach_one_sentence)		{ str("foreach") >> blank >> str("(") >> blank >> (var_array.as(:ARRAY) | variable) >> blank >> str("as") >> blank >> value_foreach >> blank >> str(")") >> blank >> ( if_short_content | one_line_statement.as(:ONE_LINE_STATEMENT)) >> blank}
 
 	rule(:foreach_content)          { (var_array.as(:ARRAY) | variable) >> blank >> str("as") >> blank >> value_foreach >> blank }
 	
