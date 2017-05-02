@@ -97,9 +97,9 @@ end
 													<% if !(l[:token] == 'html') %>
 														<pre><%=l[:line_number]%>.&nbsp;<%= l[:line_code].html_safe %></pre>
 														<% if $elementsOfController.include?(l[:token].to_s) %>
-															<p>En la columna <%=l[:column_number]%> de esta linea hay un elemento que debería estar en un: <b id="tooltip_controller" data-toggle="tooltip" data-placement="bottom" title="laksjhdfkljahsdlkfjhkjsdhf">CONTROLADOR</b></p>
+															<p>En la columna <%=l[:column_number]%> de esta linea hay un elemento que debería estar en un: <b id="tooltip_controller" data-toggle="tooltip" data-placement="bottom" title="">CONTROLADOR</b></p>
 														<% elsif $elementsOfModel.include?(l[:token].to_s) %>
-															<p>En la columna <%=l[:column_number]%> de esta linea hay un elemento debería estar en un: <b id="tooltip_model" data-toggle="tooltip" data-placement="bottom" title="ajsdlkjfahslkdjhflasd">MODELO</b></span></p>
+															<p>En la columna <%=l[:column_number]%> de esta linea hay un elemento debería estar en un: <b id="tooltip_model" data-toggle="tooltip" data-placement="bottom" title="">MODELO</b></span></p>
 														<%end%>
 													<% else %>
 														<pre>Esta secccion corresponde a una vista a partir de la linea <%=l[:line_number]%>.</pre>

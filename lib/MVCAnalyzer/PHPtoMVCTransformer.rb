@@ -33,6 +33,9 @@ class PHPtoMVCTransformer < Parslet::Transform
 	rule(:IF => subtree(:x)) {
 		x
 	}
+	rule(:IF_SHORT_CONTENT => subtree(:x)) {
+		x
+	}
 	rule(:IF_ONE_LINE => subtree(:x)) {
 		x
 	}
@@ -128,6 +131,9 @@ class PHPtoMVCTransformer < Parslet::Transform
 
 	#----------------- For each ---------------------
 	rule(:FOREACH => subtree(:x)) {
+		x
+	}
+	rule(:FOREACH_ONE_SENTENCE => subtree(:x)){
 		x
 	}
 	rule(:FOREACH_NORMAL_SYNTAX => subtree(:x)) {
@@ -260,6 +266,12 @@ class PHPtoMVCTransformer < Parslet::Transform
 	rule(:GET => simple(:x)) {
 		resp = {}
 		resp[:GET]= x.line_and_column      
+		resp
+	}
+
+	rule(:REQUEST => simple(:x)) {
+		resp = {}
+		resp[:REQUEST]= x.line_and_column      
 		resp
 	}
 

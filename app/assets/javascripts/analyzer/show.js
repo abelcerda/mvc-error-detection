@@ -3,12 +3,29 @@ var App = App || {};
 App.analyzer = (function() {
     
     return {
-        showResults: function(){
-          console.log("Hola estamos en un fichero de javascript");
+        checkFileInput: function(){
+        		$("#analyzer_scripts").change(function(){
+        			if($("#analyzer_scripts").get(0).files.length == 0){
+			          	$("#btnAnalyzer").prop('disabled',true);
+			          	$("#contMsgEmpty").show()
+			          	$("#msgInputEmpty").text("No se han ingresado archivos para analizar");
+			        }else{
+			        	$("#btnAnalyzer").prop('disabled',false);
+			        	$("#contMsgEmpty").hide()
+			        }	
+        		})
+          
+        },
+
+        disabledBtn: function(){
+        	if($("#analyzer_scripts").get(0).files.length == 0){
+	          	$("#btnAnalyzer").prop('disabled',true);
+	        }
         },
         
         init: function() {
-            App.analyzer.showResults();
+        	//App.analyzer.disabledBtn();
+            //App.analyzer.checkFileInput();
         }
     };
 })();
