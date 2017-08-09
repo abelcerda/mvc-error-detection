@@ -1,14 +1,4 @@
-<?php
 
-session_start();
-if (isset($_SESSION['autenticado'])){
-    header('Location:http://localhost/gramajo/Vistas/menu.php');
-}
-//else{
-//    header('Location:http://localhost/gramajo/Vistas/index.php');
-//}
-    
-?>
 
 <!DOCTYPE html>
 <!-- saved from url=(0039)http://getbootstrap.com/examples/theme/ -->
@@ -40,7 +30,17 @@ if (isset($_SESSION['autenticado'])){
 			<script> $.validate(); </script>
 
     </head>
+<?php
 
+session_start();
+if (isset($_SESSION['autenticado'])){
+    header('Location:http://localhost/gramajo/Vistas/menu.php');
+}
+//else{
+//    header('Location:http://localhost/gramajo/Vistas/index.php');
+//}
+    
+?>
 <body>
 
   <div class="container theme-showcase" role="main">
