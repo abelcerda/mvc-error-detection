@@ -59,7 +59,7 @@ end
 													<span>Controladores encontrados:</span>&nbsp;<span><b><%=$stadistics[:controller]%></b></span>
 												</td>
 												<td>
-													<span>Archivos con operaciones de distinto tipo:</span>&nbsp;<span><b><%=$stadistics[:multi_type]%></b></span>
+													<span>Errores de implementación de MVC:</span>&nbsp;<span><b><%=$stadistics[:multi_type]%></b></span>
 												</td>	
 											</tr>
 										</tbody>
@@ -75,10 +75,10 @@ end
 						    <div class="panel-heading" role="tab" id="heading_<%= index+1 %>">
 								<h4 class="panel-title">
 									<div class="row">
-										<div class="col-md-6">
+										<div class="col-sm-6">
 											<%= la[:file_name] %>
 										</div>
-										<div class="col-md-6 text-right">
+										<div class="col-sm-6 text-right">
 											<a role="button" data-toggle="collapse" data-parent="#accordion_<%= index+1%>" href="#collapse_<%= index+1 %>" aria-expanded="false" aria-controls="collapseOne" class="link_collapse">
 												<span class="app-toggle-button">Ver análisis</span>
 											</a>
