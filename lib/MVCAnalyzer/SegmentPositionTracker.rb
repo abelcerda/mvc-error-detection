@@ -14,7 +14,7 @@ class ScriptParser < Parslet::Parser
 
 	rule(:php_section)      { str("<?php") >> php_code >> (str("?>") | eof)}
 	rule(:php_code)         { ((str("?>").absent? >> any).repeat(1)) }
-	rule(:html_section)     { (str("<?php").absent? >> any).repeat(1)} #<?php
+	rule(:html_section)     { (str("<?php").absent? >> any).repeat(1)} 
 
 
 
@@ -22,7 +22,8 @@ class ScriptParser < Parslet::Parser
 end
 
 class Transformio < Parslet::Transform
-	#los patterns de las rule deben contener todos los elementos (:elemento) del mismo nivel de jerarquía, de lo contrario no funcionará
+	#los patterns de las rule deben contener todos los elementos (:elemento) 
+	#del mismo nivel de jerarquía, de lo contrario no funcionará
 	rule(:PHP_SECTION => simple(:x)) {
 		resp = {}
 		resp[:PHP_SECTION] = x.line_and_column

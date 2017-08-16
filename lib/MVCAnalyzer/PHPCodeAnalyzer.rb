@@ -10,9 +10,6 @@ class PhpLexer < Parslet::Parser
 	rule(:eof)                      { any.absent? }
 	rule(:space_aux)                { str(" ")}
 
-	#rule(:script_tag_section)   { script_tag_open >> noscript.as(:CODE) >> script_tag_close }
-
- #   rule(:php_code)        { dowhile_statement.as(:DOWHILE) >> blank }
 	rule(:analizer_file)            { (php_section.as(:PHP_SECTION) | html_section.as(:HTML_SECTION)).repeat(1) >> blank }
 
 	rule(:html_section)             { ((str("<?php").absent? >> any).repeat(1)) >> blank }
@@ -28,12 +25,10 @@ class PhpLexer < Parslet::Parser
 
 	rule(:content_ctrl_struct)      { ((php_open >> one_line_statement >> php_close) | (php_open >> control_structure) | html_section.as(:HTML_SECTION)) >> blank }
 
-#       rule(:control_structure){(define_function.as(:function)) >> blank}
 
 	rule(:control_structure)        { (while_statement.as(:WHILE) | if_statement.as(:IF) | dowhile_statement.as(:DO_WHILE) | foreach_statement.as(:FOREACH) | for_statement.as(:FOR)| switch_statement.as(:SWITCH)) >> blank}
 
 #----------------Ternary logic----------------------
-	#rule(:ternary_logic)			{(operation >> blank >> str(")").repeat.maybe >> blank >> str("?") >> blank >> ( left_part) >> blank >> str(":") >> blank >> ( left_part)) >> blank}
 	rule(:ternary_logic)			{((class_atributte | array_one_position | string_var_name | operation | internal_function) >> blank >> str(")").repeat.maybe >> blank >> str("?") >> blank >> (operation | variable) >> blank >> str(":") >> blank >> (operation | left_part)) >> blank}
 	rule(:ternary_logic_param)		{str("(") >> blank >> ternary_logic >> blank >> str(")")}
 #---------------------------------------------------
@@ -96,7 +91,7 @@ class PhpLexer < Parslet::Parser
 	rule(:methods)                  { (abstract_method | method_definition) >> blank }
 	
 	rule(:method_definition)        { (type_var_method.repeat >> blank >> define_methods >> blank) }
-#       rule(:alternative_cont) { (type_var_method.repeat.maybe >> blank >> define_methods >> blank) }
+
 	rule(:define_methods)           { (str("function") >> blank >> (simple_string) >> blank >> str("(") >> blank >> coment.maybe >> blank >> parameters.maybe >> blank >> coment.maybe >>blank >> str(")").maybe >> blank >> coment.maybe >> blank >> str("{") >> blank >> ((php_close >> blank >> content_ctrl_struct.repeat.maybe >> blank >> ( function_end.as(:func_end) | (php_open >> blank >> php_code.repeat >> blank >> str("}") >> blank >> php_close).as(:end_phpClose) | (php_open >> blank >> php_code.repeat >> blank >> str("}") >> class_content.repeat).as(:end_without_phpClose))) | (php_code.maybe >> blank >> str("}")))) >> blank }
 
 	rule(:abstract_method)          { str("abstract") >> blank >> type_var_method.repeat.maybe >> blank >> str("function") >> blank >> internal_function >> blank >> str(";") >> blank }
@@ -132,8 +127,7 @@ class PhpLexer < Parslet::Parser
 	rule(:for_normal)               {(str("for") >> blank >> str("(") >> blank >> for_conditions >> blank >> str(")") >> blank >> coment.maybe >> blank >> str("{") >> blank >> ((php_close >> blank >> content_ctrl_struct.repeat >> blank >> (php_open >> blank >> (for_normal_close | (one_line_statement >> blank >> for_normal_close)))) | (php_code.maybe >> blank >> str("}")))) >> blank >> coment.maybe >> str(";").maybe >> blank >> coment.maybe }
 
 	rule(:for_alternative)          { (str("for") >> blank >> str("(") >> for_conditions >> str(")") >> blank >> str(":") >> blank >> ((php_close >> blank >> content_ctrl_struct.repeat >> blank >> (php_open >> blank >> (for_alternative_close | (one_line_statement >> blank >> for_alternative_close)))) | (php_code.maybe >> blank >> str("endfor;")))) >> blank }
-#    rule(:for_conditions)   { ((variable >> blank >> operators >> blank >> variable).maybe >> blank >> (str(";") |
-#                           str(","))).repeat(1) >> blank >> increment_decrement.maybe } #Revisar el tema de las operaciones, por ejemplo: print f;
+
 	rule(:increment_decrement)      { ((str("--") | str("++")) >> variable) | (variable >> (str("--") | str("++"))) >> blank}
 	
 	rule(:for_conditions)           { (parameters.maybe >> blank >> str(";")).repeat(2) >> blank >> (increment_decrement | (variable >> blank >> assignment >> blank >> variable)).maybe }
@@ -168,7 +162,6 @@ class PhpLexer < Parslet::Parser
 
 #------------------- if ---------------------------
 	rule(:if_statement)             {( if_short_content.as(:IF_SHORT_CONTENT) | if_normal_form.as(:NORMAL_FORM) | if_short_form.as(:SHORT_FORM)) >> blank}
-#if_one_line.as(:IF_ONE_LINE) |
 	
 	rule(:if_short_content)			{(str("if") >> blank >> (operation | only_argument) >> blank >> ( foreach_one_sentence | one_line_statement.as(:ONE_LINE_STATEMENT)) >> blank) >> ( (elseif_short_content >> blank >>else_short_content.maybe) | else_short_content.repeat(1) ).maybe >> blank}
 
@@ -253,7 +246,6 @@ class PhpLexer < Parslet::Parser
 #------------------- Coment -----------------------
 	rule(:coment)                   { ( block_coment | line_coment ) >> blank}
 	rule(:line_coment)              { (str("//") | str("#")) >> (match('\n').absent? >> any).repeat >> blank}
-	#rule(:line_coment)              { (str("//") | str("#")) >> space_aux >> match('\n')}
 	rule(:block_coment)             { (str('/*') >> (str('*/').absent? >> any).repeat >> str('*/')) }
 #--------------------------------------------------
 
@@ -261,7 +253,6 @@ class PhpLexer < Parslet::Parser
 	rule(:only_sentence)            { (printers | var_assignment | return_sentence | continue) >> str(";") >> blank }
 	rule(:printers)                 { (str("echo") | str("print")) >> blank >> (language_type).maybe >> blank >>(ternary_logic | parameters) >> blank}
 	rule(:return_sentence)          { str("return") >> blank >> language_type.maybe >> blank >> (ternary_logic | parameters).maybe >> blank}
-		#>> parameters.maybe >> blank }
 	rule(:global_vars)              { (str("global") >> blank >> variable) >> blank }
 	rule(:param_class)              { simple_string >> space? >> (var_assignment | simple_string) }
 	rule(:continue)                 { str("continue") >> blank >> match("[0-9]").repeat(1).maybe >> blank }
@@ -275,7 +266,6 @@ class PhpLexer < Parslet::Parser
 	rule(:variable)                 { language_type.maybe >> blank >> (negative_expresion | (class_atributte | cadenas | array_one_position | internal_function | parent_string | simple_string | negative_decimal_numbers)) >> blank }
 	rule(:negative_expresion)		{ (str("-") >> blank >> str("(").maybe >> (operation | class_atributte | var_array.as(:ARRAY_PARAM) | internal_function.as(:INT_FUNC_PARAM) | param_class | variable) >> str(")").maybe >> blank)}
 	rule(:class_atributte)          { (language_type).maybe >> blank >> (array_one_position | simple_string) >> (str("->") >> (pdo_methods.as(:PDO_METHODS) | internal_function | array_one_position | simple_string) >> blank >> coment.maybe).repeat(1) >> blank}
-	#rule(:class_atributte)          { simple_string >> (str("->") >> (pdo_methods.as(:PDO_METHODS) | internal_function | array_one_position | simple_string)).repeat(1) >> blank}
 
 	rule(:simple_string)            { match("[a-zA-Z0-9/$@!?&_]").repeat(1) >> blank}
 	
@@ -298,7 +288,7 @@ class PhpLexer < Parslet::Parser
 	rule(:decrementing)             { str("--") >> blank }
 	
 	rule(:logical)                  { (str("and") | str("or") | str("xor") | str("&&") | str("&") | str("||")) >> blank }
-	#| str("!")
+	
 	rule(:assignment)               { (str("=") | str("+=") | str("-=")) >> blank }
 	
 	rule(:string_op)                { (str(".=") | str(".")) >> blank }

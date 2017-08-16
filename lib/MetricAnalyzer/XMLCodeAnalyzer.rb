@@ -38,7 +38,8 @@ end
 
 
 class XMLTransformer < Parslet::Transform
-  #los patterns de las rule deben contener todos los elementos (:elemento) del mismo nivel de jerarquía, de lo contrario no funcionará
+  #los patterns de las rule deben contener todos los elementos (:elemento) 
+  #del mismo nivel de jerarquía, de lo contrario no funcionará
   
   rule(:ATTR => simple(:y),:VALUE => simple(:x)){
     res={}
@@ -47,7 +48,8 @@ class XMLTransformer < Parslet::Transform
   }
   
   rule(:TAG_NAME => simple(:y), :ATTR_LIST => subtree(:x)){
-    # Será usada sólo por los :SINGLE_TAG porque son lo únicos que tienen estos dos elementos (:DOUBLE_TAG tiene :TAG_CONTENT, por lo cual no cumple estos requisitos)
+    # Será usada sólo por los :SINGLE_TAG porque son lo únicos que tienen 
+    # estos dos elementos (:DOUBLE_TAG tiene :TAG_CONTENT, por lo cual no cumple estos requisitos)
     res={}
     res[y.to_s] = {}
     name = ''
@@ -72,7 +74,7 @@ class XMLTransformer < Parslet::Transform
   
   rule(:TAG_NAME => simple(:z), :ATTR_LIST => subtree(:y), :TAG_CONTENT => subtree(:x)){
     # Será usada sólo por los :DOUBLE_TAG
-    #    z puede ser: 'metrics', 'package', 'class', 'function'
+    # z puede ser: 'metrics', 'package', 'class', 'function'
     
     name = ''
     metrics = Hash.new
@@ -106,7 +108,8 @@ class XMLTransformer < Parslet::Transform
   }
   
   rule(:TAG_NAME => simple(:y), :TAG_CONTENT => subtree(:x)){
-    # Será usada sólo por los :DOUBLE_TAG que no tienen atributos (sólo es el tag 'files')
+    # Será usada sólo por los :DOUBLE_TAG que no 
+    # tienen atributos (sólo es el tag 'files')
     files = Array.new
     x.each { |file|
       files.push(file['file'])
@@ -125,7 +128,8 @@ class XMLTransformer < Parslet::Transform
       res = Hash.new
       res['package'] = x['package'][:content]
     end
-    #acá se están descartando varias métricas sólo porque no están asociadas a un archivo en particular
+    # acá se están descartando varias métricas sólo porque 
+    # no están asociadas a un archivo en particular
     res
   }
   
@@ -135,15 +139,13 @@ end
 
 
 class XMLAnalyzer
-  
-  # Zona de construcción
-  # Hombres trabajando
-  # TO DO: revisar las funciones de acá abajo, tal vez haya que reescribirlas, otras descartarlas. HECHO
-  # TO DO: Primero corré este script tal como está y fijate los resultados que tira para saber cómo tenés que seguir con el ordenamiento por archivo. 
-  # UPDATE: fijate la última función donde agrega las funciones y clases a los archivos. No lo está haciendo, pareciera que los nombres de archivo no coinciden. HECHO
-  def parse_xml(xml='') #OK
-    raw_metrics = get_analyzed_code(xml) #ejecutar el parser y el transformer para obtener los tags con parslet. Acá también podría transformar el nombre del tag o atributo al nombre de la métrica
-    metrics_by_file = format_metrics(raw_metrics)  # recorre los tags y los ordena para que se ordenen por archivo
+
+  def parse_xml(xml='') 
+    # ejecutar el parser y el transformer para obtener los tags con parslet. 
+    # Acá también podría transformar el nombre del tag o atributo al nombre de la métrica
+    raw_metrics = get_analyzed_code(xml) 
+    # recorre los tags y los ordena para que se ordenen por archivo
+    metrics_by_file = format_metrics(raw_metrics) 
     return metrics_by_file
   end
   
@@ -164,7 +166,7 @@ class XMLAnalyzer
     puts failure.cause.ascii_tree
   end
 
-  def format_metrics(raw_metrics) #OK
+  def format_metrics(raw_metrics) 
     files = get_file_list(raw_metrics)
     if !files.empty?
       classes_and_functions = find_classes_and_functions(raw_metrics)
@@ -175,7 +177,7 @@ class XMLAnalyzer
     return files
   end
   
-  def get_file_list(metrics)  #OK
+  def get_file_list(metrics)  
     file_array = Array.new
     if (metrics != nil && metrics[0] != nil)
       file_array = metrics[0][:files]
@@ -187,11 +189,13 @@ class XMLAnalyzer
     merged_content = Array.new
     metrics.each do |tag|
       if tag.has_key?('package')
-        # es un tag 'package' y ahí se guardan en un array clases y funciones, las cuales tienen a su vez el nombre del archivo al cual pertenecen
+        # es un tag 'package' y ahí se guardan en un array clases y funciones, 
+        # las cuales tienen a su vez el nombre del archivo al cual pertenecen
         merged_content.push(tag['package'])
       end
     end
-    return merged_content.flatten(1)  #combina el array de cada paquete en uno solo con todas las clases y funciones
+    #combina el array de cada paquete en uno solo con todas las clases y funciones
+    return merged_content.flatten(1)  
   end
   
   def append_classes_and_functions_to_file(c_or_f, files) #OK

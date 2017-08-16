@@ -45,8 +45,6 @@
     'wmcnp' => 'Non Private Weighted Method Count'
   }
 
-#comando = 'php pdepend \-\-summary\-xml=\/tmp\/sum.xml \/media\/abel\/Datos\/Programming\/PHP\/Curso\\ PHP\\ Ctrl+F/gramajo/'	#'php pdepend --summary-xml=/tmp/sum.xml /media/abel/Datos/Programming/PHP/Curso PHP Ctrl+F/gramajo/'
-
 class PDependRunner
   def execute_pdepend(source_file)
     file = Tempfile.new('metrics')
@@ -55,7 +53,7 @@ class PDependRunner
     command_sentence = 'php '+ pdepend_path + ' ' + pdepend_options + file.path + ' ' + source_file
     system(command_sentence)
     metric_file = File.read(file)
-    # TO DO: agregar una captura de excepciones, en caso que no pueda leer el archivo que debería estar generado. YA ME PASÓ.
+    
     file.close
     file.unlink    # deletes the temp file
     return metric_file
@@ -67,12 +65,10 @@ class MetricAnalyzer < XMLAnalyzer
     metric_file = PDependRunner.new.execute_pdepend(source_file)
     parsed_metrics = parse_xml(metric_file)
     if !parsed_metrics.empty?
-      parsed_metrics = parsed_metrics[0]  # se selecciona el primer resultado porque los archivos se analizan de a uno
+      # Se selecciona el primer resultado porque los archivos se analizan de a uno
+      parsed_metrics = parsed_metrics[0]  
       parsed_metrics[:file_name] = file_name
     end
     return parsed_metrics
   end
 end
-
-#an = MetricsAnalyzer.new
-#pp an.analyze_metrics('/home/abel/class.phpmailer.php')

@@ -16,9 +16,7 @@ class MVCEngine
 	optimus_script = Transformio.new.apply(sections_script)
 	php_sections_analyzed = PhpLexer.new.parse(code)
 	php_sections_transform = PHPtoMVCTransformer.new.apply(php_sections_analyzed)
- 	#puts"-----------------------------"
-   #puts php_sections_transform
-   	#puts "---------------------------"
+ 	
 	k = 0
 	j = 0
 	sections_php = [] # Array que va a contener le offset que se le sumara a los elementos del array @leaves
@@ -41,8 +39,7 @@ class MVCEngine
 	sections_php = {:stack_token => hash,
 					:file_name => file_name,
 					:operation => @operations_mvc}
-	#Llamada a la clase Php_Engine que
-	#@leaves = PHPCodeAnalyzer.new.runPHP(stack_php,offset_php)
+	
 	return sections_php
   end
 
@@ -63,7 +60,7 @@ class MVCEngine
 	else
 		if array_list.is_a?(Hash)
 			array_list.select { |key, value| @llave = key; @valor = value }
-			#stack_php.push({:token => @llave, :line_code => script[@valor[0].to_i - 1], :column_number => (@valor[1].to_i) ,:line_number => (@valor[0].to_i)})
+		
 			stack_php.push({:token => @llave, 
 							:line_code => self.addHighlightsToToken(script[@valor[0].to_i - 1],@llave,@valor[1].to_i), 
 							:line_number => (@valor[0].to_i), 
@@ -93,7 +90,6 @@ class MVCEngine
 		when "PDO_STATEMENT"  
 			cad = self.makeCommonActions('new pdo',cad_aux,col)
 			self.verifyOperation('model')
-			#cad = line
 		when "PDO_METHODS"
 			first_part = cad_aux[0,(col - 1)]
 			cad = line[(col - 1), line.length] # toma a partir del token en adelante.
@@ -127,9 +123,6 @@ class MVCEngine
 			end
 			self.verifyOperation('model')
 	end
-	#"hello".tr_s('l', 'r')
-	#line.insert(index, 'estosevaadecontrolar')
-	#line
 	cad
   end
 
