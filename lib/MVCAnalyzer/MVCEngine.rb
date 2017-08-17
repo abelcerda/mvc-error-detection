@@ -16,8 +16,12 @@ class MVCEngine
 	optimus_script = Transformio.new.apply(sections_script)
 	php_sections_analyzed = PhpLexer.new.parse(code)
 	php_sections_transform = PHPtoMVCTransformer.new.apply(php_sections_analyzed)
- 	
-	k = 0
+	results_php = self.formatResults(php_sections_transform, linesCode, optimus_script)
+	return results_php
+  end
+  
+  def formatResults(php_sections_transform, linesCode, optimus_script)
+  	k = 0
 	j = 0
 	sections_php = [] # Array que va a contener le offset que se le sumara a los elementos del array @leaves
 	hash = []
@@ -36,11 +40,9 @@ class MVCEngine
 	
 		hash.push(stack_token)
 	end
-	sections_php = {:stack_token => hash,
-					:file_name => file_name,
-					:operation => @operations_mvc}
-	
-	return sections_php
+  	return {:stack_token => hash,
+		    :file_name => file_name,
+		    :operation => @operations_mvc}
   end
 
   def analyzerHtml(html_section)
