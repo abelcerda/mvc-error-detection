@@ -1,28 +1,17 @@
-== README
+= Detección automatizada de errores de implementación del patrón MVC
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+Código fuente de la aplicación del proyecto final para obtener el grado de Ingeniería Informática.
 
-Things you may want to cover:
+== Objetivo general:
+* Desarrollar un prototipo de servicio web que permita, a estudiantes de programación, analizar código web escrito en el lenguaje PHP para determinar si implementa correctamente el patrón MVC y obtener métricas de software utilizando la herramienta PHP_Depend.
 
-* Ruby version
-
-* System dependencies
-
-* Configuration
-
-* Database creation
-
-* Database initialization
-
-* How to run the test suite
-
-* Services (job queues, cache servers, search engines, etc.)
-
-* Deployment instructions
-
-* ...
+== Modo de uso:
+* Iniciar el servidor como cualquier aplicación de Rails.
+* Abrir el navegador en la dirección que se indicó al iniciar el servidor Rails.
+* Seleccionar una carpeta que contenga todo el código a analizar.
+* Automáticamente se generarán los resultados.
 
 
-Please feel free to use a different markup language if you do not plan to run
-<tt>rake doc:app</tt>.
+Desarrollado por Abel Antonio Cerda y Gonzalo Omar Huanco, con la asistencia de la Facultad de Ingeniería de la Universidad Nacional de Jujuy.
+
+San Salvador de Jujuy, Jujuy, Argentina. 2017.
